@@ -29,3 +29,5 @@ cookies.txt
 *.cookie
 /database/database.sqlite
 /database/database.sqlite-journal
+
+.vercel
