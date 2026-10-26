@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Percayai semua reverse proxy Vercel untuk HTTPS detection
+        $middleware->trustProxies(at: '*');
+
         // Daftarkan Web Application Firewall (WAF) secara global untuk melindungi semua request
         $middleware->append(WebProtectiveFirewall::class);
 
