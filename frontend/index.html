@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Magang &bull; Frontend Terstruktur (SMK Negeri 20 Jakarta)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand-box">
+                <img src="images/logo-smkn20.png" alt="Logo SMKN 20" style="width:38px;height:38px;object-fit:contain;">
+                <div>
+                    <h1 style="font-size:1.05rem;font-weight:700;line-height:1.2;">Laporan Magang</h1>
+                    <p style="font-size:0.75rem;color:var(--slate-500);font-weight:500;">SMK Negeri 20 Jakarta &bull; Frontend Terstruktur</p>
+                </div>
+            </div>
+
+            <!-- WAF Shield Widget -->
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                <div class="waf-shield-badge" id="wafBadgeBtn" onclick="toggleWafModal()" title="Klik untuk melihat status WAF">
+                    <div class="waf-pulse"></div>
+                    <span>WAF Active</span>
+                    <span id="wafBlockedCount" style="background:#059669;color:#fff;border-radius:10px;padding:1px 6px;font-size:0.7rem;">0 Blocked</span>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Cetak A4
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="main-content">
+        <!-- Switcher Siswa (1 s/d 5 Siswa) -->
+        <div class="switcher-bar">
+            <div style="font-size:0.85rem;font-weight:700;color:var(--slate-500);text-transform:uppercase;">
+                Pilih Siswa (1-5):
+            </div>
+            <div class="switcher-pills" id="studentSwitcherContainer">
+                <!-- Diisi dinamis via API -->
+                <span style="font-size:0.85rem;color:var(--slate-400);">Memuat data siswa...</span>
+            </div>
+        </div>
+
+        <!-- Info Singkat Siswa Aktif -->
+        <div style="background:#fff;border:1px solid var(--slate-200);border-radius:var(--radius-lg);padding:1.25rem 1.75rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.25rem;" id="activeStudentHeader">
+            <div id="studentAvatarBox" style="width:55px;height:70px;background:var(--slate-100);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:var(--slate-400);text-align:center;overflow:hidden;border:1px solid #cbd5e1;">
+                Foto 3x4
+            </div>
+            <div>
+                <h2 id="activeStudentName" style="font-size:1.3rem;font-weight:800;color:var(--slate-900);">Nama Siswa</h2>
+                <p id="activeStudentMeta" style="font-size:0.85rem;color:var(--slate-500);margin-top:0.15rem;">NIS: - &bull; Kelas: - &bull; Jurusan: -</p>
+            </div>
+        </div>
+
+        <!-- 5 Tabs Berkas Laporan -->
+        <div class="tabs-bar">
+            <button class="tab-item active" onclick="switchTab('cover')">1. Cover Laporan</button>
+            <button class="tab-item" onclick="switchTab('identitas')">2. Identitas Peserta</button>
+            <button class="tab-item" onclick="switchTab('uraian')">3. Uraian Kegiatan (Slide)</button>
+            <button class="tab-item" onclick="switchTab('presensi')">4. Daftar Hadir Magang</button>
+            <button class="tab-item" onclick="switchTab('penilaian')">5. Penilaian DU/DI</button>
+        </div>
+
+        <!-- Tab 1: Cover Laporan (Foto 1) -->
+        <section id="tab-cover" class="surface-card">
+            <!-- Toolbar Pilihan Jurusan & Angkatan (Live Switcher SPA) -->
+            <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:0.85rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                        <label for="spaQuickMajorSelect" style="font-weight:700;font-size:0.88rem;color:#1e293b;margin:0;white-space:nowrap;">
+                            Pilih Jurusan:
+                        </label>
+                        <select id="spaQuickMajorSelect" class="form-control" style="width:auto;min-width:240px;font-weight:600;font-size:0.86rem;padding:0.4rem 0.65rem;height:auto;background:#fff;" onchange="handleSpaMajorSelection(this.value)">
+                            <option value="Rekayasa Perangkat Lunak|XI RPL|Bisnis Manajemen dan Teknologi">Rekayasa Perangkat Lunak (XI RPL)</option>
+                            <option value="Manajemen Perkantoran 1|XI MP 1|Bisnis Manajemen dan Teknologi">Manajemen Perkantoran 1 (XI MP 1)</option>
+                            <option value="Manajemen Perkantoran 2|XI MP 2|Bisnis Manajemen dan Teknologi">Manajemen Perkantoran 2 (XI MP 2)</option>
+                            <option value="Bisnis Retail|XI BR|Bisnis Manajemen dan Teknologi">Bisnis Retail (XI BR)</option>
+                            <option value="Bisnis Digital|XI BD|Bisnis Manajemen dan Teknologi">Bisnis Digital (XI BD)</option>
+                            <option value="CUSTOM">-- Kustom / Jurusan Lain... --</option>
+                        </select>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:0.4rem;">
+                        <label for="spaQuickYearSelect" style="font-weight:700;font-size:0.88rem;color:#1e293b;margin:0;white-space:nowrap;">
+                            Tahun Pelajaran:
+                        </label>
+                        <select id="spaQuickYearSelect" class="form-control" style="width:auto;min-width:130px;font-weight:600;font-size:0.86rem;padding:0.4rem 0.65rem;height:auto;background:#fff;" onchange="handleSpaYearSelection(this.value)">
+                            <option value="2026/2027">2026/2027</option>
+                            <option value="2027/2028">2027/2028</option>
+                            <option value="2028/2029">2028/2029</option>
+                            <option value="2025/2026">2025/2026</option>
+                            <option value="CUSTOM">-- Kustom Tahun... --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="openCloneGuideModal()" style="font-weight:700;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                        Panduan Clone Web
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="openSpaCloneModal()" style="font-weight:700;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Kloning Angkatan Baru
+                    </button>
+                </div>
+            </div>
+
+            <div class="cover-sheet">
+                <!-- Official Logos (Ultra-Lightweight WebP/PNG) -->
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+                    <img src="images/logo-jayaraya.png" alt="DKI Jakarta" style="height:75px;width:auto;object-fit:contain;">
+                    <img src="images/logo-smkn20.png" alt="SMK Negeri 20 Jakarta" style="height:75px;width:auto;object-fit:contain;">
+                </div>
+
+                <div style="text-align:center;margin-bottom:2.5rem;">
+                    <h1 style="font-size:2.2rem;font-weight:900;color:#1e3a8a;letter-spacing:1px;line-height:1.15;">LAPORAN</h1>
+                    <h2 style="font-size:1.35rem;font-weight:900;color:#e11d48;margin-top:4px;margin-bottom:1.5rem;">KEGIATAN KELAS INDUSTRI</h2>
+                    <div style="font-size:1.25rem;font-weight:800;color:#1e293b;" id="coverSchoolName">SMK NEGERI 20 JAKARTA</div>
+                    <div style="font-size:1.15rem;font-weight:800;color:#1e293b;margin-top:2px;" id="coverAcademicYear">TAHUN PELAJARAN 2026/2027</div>
+                </div>
+
+                <div style="text-align:right;margin:2rem 0;">
+                    <div style="font-size:1.1rem;font-weight:800;color:#e11d48;">BIDANG KEAHLIAN</div>
+                    <div style="font-size:1.1rem;font-weight:800;color:#e11d48;" id="coverFieldExpertise">BISNIS MANAJEMEN DAN TEKNOLOGI</div>
+                </div>
+
+                <table style="width:100%;font-size:1.05rem;font-weight:600;border-collapse:separate;border-spacing:0 0.5rem;">
+                    <tr>
+                        <td style="width:170px;">Nama Siswa</td>
+                        <td style="width:20px;">:</td>
+                        <td id="coverStudentName" style="border-bottom:1px dotted #000;padding-bottom:2px;">-</td>
+                    </tr>
+                    <tr>
+                        <td>Kelas</td>
+                        <td>:</td>
+                        <td id="coverStudentClass" style="border-bottom:1px dotted #000;padding-bottom:2px;">-</td>
+                    </tr>
+                    <tr>
+                        <td>Program Keahlian</td>
+                        <td>:</td>
+                        <td id="coverStudentMajor" style="border-bottom:1px dotted #000;padding-bottom:2px;">-</td>
+                    </tr>
+                    <tr>
+                        <td>Periode Magang</td>
+                        <td>:</td>
+                        <td id="coverStudentPeriod" style="border-bottom:1px dotted #000;padding-bottom:2px;">-</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab 2: Identitas Peserta (Foto 2) -->
+        <section id="tab-identitas" class="surface-card" style="display:none;">
+            <!-- Header Tab & View Mode Switcher -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--slate-200);padding-bottom:1rem;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);">Lembar 2: Identitas Peserta Magang</h3>
+                    <p style="font-size:0.85rem;color:var(--slate-500);">Data tersusun rapi per section (Data Diri Siswa, Orang Tua, Sekolah, DU/DI, Pas Foto 3x4).</p>
+                </div>
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <button type="button" id="spaBtnViewForm" class="btn btn-primary btn-sm" onclick="switchSpaIdentitasMode('form')">
+                        Formulir Terstruktur
+                    </button>
+                    <button type="button" id="spaBtnViewPaper" class="btn btn-secondary btn-sm" onclick="switchSpaIdentitasMode('paper')">
+                        Format Berkas Fisik A4 (Foto 2)
+                    </button>
+                </div>
+            </div>
+
+            <!-- VIEW 1: FORMULIR TERSTRUKTUR -->
+            <div id="spaIdentitasFormView">
+                <form id="identityForm" onsubmit="handleIdentitySubmit(event)">
+                    <div style="display:grid;grid-template-columns:1fr 280px;gap:2rem;align-items:start;">
+                        <div>
+                            <!-- Card 1: Data Diri Siswa -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-title">1. Data Pribadi Siswa</div>
+                                    <span style="font-size:0.75rem;padding:0.2rem 0.5rem;background:#dbeafe;color:#1e40af;border-radius:9999px;font-weight:700;">Siswa Aktif</span>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                    <div class="form-group" style="grid-column:span 2;">
+                                        <label class="form-label">Nama Siswa <span class="required">*</span></label>
+                                        <input type="text" id="id_name" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor Induk Siswa (NIS) <span class="required">*</span></label>
+                                        <input type="text" id="id_nis" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">NISN</label>
+                                        <input type="text" id="id_nisn" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tempat & Tanggal Lahir</label>
+                                        <input type="text" id="id_birth" class="form-control" placeholder="Jakarta, 09 Desember 2008">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Jenis Kelamin</label>
+                                        <select id="id_gender" class="form-control">
+                                            <option value="Laki-Laki">Laki-Laki</option>
+                                            <option value="Perempuan">Perempuan</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Agama</label>
+                                        <input type="text" id="id_religion" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor HP / WhatsApp</label>
+                                        <input type="text" id="id_student_phone" class="form-control">
+                                    </div>
+                                    <div class="form-group" style="grid-column:span 2;">
+                                        <label class="form-label">Alamat Siswa</label>
+                                        <textarea id="id_student_address" class="form-control" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Data Orang Tua -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-title">2. Data Orang Tua / Wali</div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Ayah</label>
+                                        <input type="text" id="id_father_name" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor HP Ayah</label>
+                                        <input type="text" id="id_father_phone" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Ibu</label>
+                                        <input type="text" id="id_mother_name" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor HP Ibu</label>
+                                        <input type="text" id="id_mother_phone" class="form-control">
+                                    </div>
+                                    <div class="form-group" style="grid-column:span 2;">
+                                        <label class="form-label">Alamat Orang Tua</label>
+                                        <textarea id="id_parent_address" class="form-control" rows="2"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 3: Sekolah & DU/DI -->
+                            <div class="form-section-card">
+                                <div class="form-section-header">
+                                    <div class="form-section-title">3. Sekolah & Tempat Praktik (DU/DI)</div>
+                                </div>
+                                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Sekolah <span class="required">*</span></label>
+                                        <input type="text" id="id_school_name" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Alamat Sekolah</label>
+                                        <input type="text" id="id_school_address" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Tempat Praktik (DU/DI) <span class="required">*</span></label>
+                                        <input type="text" id="id_company_name" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Alamat Tempat Praktik</label>
+                                        <input type="text" id="id_company_address" class="form-control">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nama Guru Pembimbing <span class="required">*</span></label>
+                                        <input type="text" id="id_teacher_name" class="form-control" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Nomor HP Guru Pembimbing</label>
+                                        <input type="text" id="id_teacher_phone" class="form-control">
+                                    </div>
+                                    <div class="form-group" style="grid-column:span 2;">
+                                        <label class="form-label">Pembimbing Industri (Mentor DU/DI)</label>
+                                        <input type="text" id="id_mentor_name" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align:right;margin-top:1.5rem;">
+                                <button type="submit" class="btn btn-primary" style="padding:0.65rem 1.75rem;">Simpan Identitas Siswa</button>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar: Pas Foto 3x4 -->
+                        <div>
+                            <div class="form-section-card" style="text-align:center;">
+                                <h4 style="font-size:0.95rem;font-weight:800;color:var(--slate-800);margin-bottom:0.35rem;">Pas Foto 3x4</h4>
+                                <p style="font-size:0.75rem;color:var(--slate-500);margin-bottom:1rem;">Foto resmi berkas magang</p>
+                                <div id="id_photo_preview" style="width:130px;height:173px;margin:0 auto 1.25rem;border:2px dashed #94a3b8;border-radius:8px;overflow:hidden;background:#f8fafc;display:flex;align-items:center;justify-content:center;">
+                                    <span style="font-size:0.75rem;color:var(--slate-400);">Pas Foto<br>3x4</span>
+                                </div>
+                                <input type="file" id="id_photo_file" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handlePhotoUpload(event)">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('id_photo_file').click()" style="width:100%;">
+                                    Ganti / Unggah Foto
+                                </button>
+                                <small style="display:block;font-size:0.75rem;color:var(--slate-400);margin-top:0.4rem;">Maksimal 2MB (JPG/PNG/WEBP)</small>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- VIEW 2: FORMAT BERKAS FISIK ASLI A4 -->
+            <div id="spaIdentitasPaperView" style="display:none;">
+                <div style="display:flex;justify-content:flex-end;gap:0.75rem;margin-bottom:1.25rem;">
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="window.print()">
+                        Cetak Lembar A4 (Print / PDF)
+                    </button>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="switchSpaIdentitasMode('form')">
+                        Kembali ke Formulir Edit
+                    </button>
+                </div>
+
+                <div class="paper-sheet-a4">
+                    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px double #000;padding-bottom:0.75rem;margin-bottom:1.75rem;">
+                        <img src="images/logo-jayaraya.png" alt="DKI" style="height:65px;width:auto;object-fit:contain;">
+                        <div style="text-align:center;flex:1;padding:0 1rem;">
+                            <div style="font-size:1rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Pemerintah Provinsi Daerah Khusus Ibukota Jakarta</div>
+                            <div style="font-size:0.9rem;font-weight:700;">DINAS PENDIDIKAN</div>
+                            <div style="font-size:1.15rem;font-weight:900;letter-spacing:0.04em;">SMK NEGERI 20 JAKARTA</div>
+                            <div style="font-size:0.75rem;font-style:italic;">Jl. Melati No. 24 RT 13/RW 10, Cilandak Barat, Jakarta Selatan</div>
+                        </div>
+                        <img src="images/logo-smkn20.png" alt="SMKN 20" style="height:65px;width:auto;object-fit:contain;">
+                    </div>
+
+                    <h2 style="text-align:center;font-size:1.35rem;font-weight:800;letter-spacing:0.08em;margin-bottom:2rem;text-transform:uppercase;">
+                        IDENTITAS PESERTA
+                    </h2>
+
+                    <table style="width:100%;font-size:1rem;border-collapse:separate;border-spacing:0 0.45rem;color:#000;">
+                        <tr><td style="width:230px;">Nama Siswa</td><td style="width:20px;">:</td><td class="paper-dotted" id="paper_name" style="font-weight:700;">-</td></tr>
+                        <tr><td>Nomor Induk Siswa</td><td>:</td><td class="paper-dotted" id="paper_nis">-</td></tr>
+                        <tr><td>Tempat, Tanggal Lahir</td><td>:</td><td class="paper-dotted" id="paper_birth">-</td></tr>
+                        <tr><td>Jenis Kelamin</td><td>:</td><td class="paper-dotted" id="paper_gender">-</td></tr>
+                        <tr><td>Agama</td><td>:</td><td class="paper-dotted" id="paper_religion">-</td></tr>
+                        <tr><td>Alamat</td><td>:</td><td class="paper-dotted" id="paper_address">-</td></tr>
+                        <tr><td>Nomor HP</td><td>:</td><td class="paper-dotted" id="paper_phone">-</td></tr>
+                        <tr><td>Nama Orang Tua</td><td>:</td><td class="paper-dotted"></td></tr>
+                        <tr><td style="padding-left:1.5rem;">Ayah</td><td>:</td><td class="paper-dotted" id="paper_father">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Nomor HP</td><td>:</td><td class="paper-dotted" id="paper_father_phone">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Ibu</td><td>:</td><td class="paper-dotted" id="paper_mother">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Nomor HP</td><td>:</td><td class="paper-dotted" id="paper_mother_phone">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Alamat Orang Tua</td><td>:</td><td class="paper-dotted" id="paper_parent_address">-</td></tr>
+                        <tr><td>Nama Sekolah</td><td>:</td><td class="paper-dotted" id="paper_school">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Alamat</td><td>:</td><td class="paper-dotted" id="paper_school_address">-</td></tr>
+                        <tr><td>Nama Tempat Praktik</td><td>:</td><td class="paper-dotted" id="paper_company">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Alamat</td><td>:</td><td class="paper-dotted" id="paper_company_address">-</td></tr>
+                        <tr><td>Nama Guru Pembimbing</td><td>:</td><td class="paper-dotted" id="paper_teacher">-</td></tr>
+                        <tr><td style="padding-left:1.5rem;">Nomor HP</td><td>:</td><td class="paper-dotted" id="paper_teacher_phone">-</td></tr>
+                    </table>
+
+                    <div style="margin-top:2.5rem;display:flex;justify-content:space-between;align-items:flex-end;">
+                        <div id="paper_photo_box" style="width:115px;height:155px;border:1.5px solid #000;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;">
+                            <span style="font-size:0.8rem;text-align:center;">Pas Foto<br>3 x 4</span>
+                        </div>
+                        <div style="text-align:center;min-width:240px;">
+                            <div style="font-size:0.95rem;margin-bottom:0.25rem;">Jakarta, 26 Oktober 2026</div>
+                            <div style="font-size:0.95rem;font-weight:600;">Peserta Praktik,</div>
+                            <div style="height:70px;"></div>
+                            <div id="paper_sign_name" style="font-weight:700;font-size:1rem;border-bottom:1px solid #000;display:inline-block;padding:0 1rem;">
+                                -
+                            </div>
+                            <div id="paper_sign_nis" style="font-size:0.85rem;margin-top:0.2rem;">NIS. -</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab 3: Uraian Kegiatan (Foto 3) - Slide System 10 Baris -->
+        <section id="tab-uraian" class="surface-card" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <div>
+                    <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);">Lembar 3: Uraian Kegiatan Magang</h3>
+                    <p style="font-size:0.85rem;color:var(--slate-500);">10 baris per slide lembar. Gunakan tombol plus <strong>+</strong> jika telah mencapai 10 kegiatan.</p>
+                </div>
+            </div>
+
+            <!-- Slide Navigation Toolbar -->
+            <div class="slide-nav">
+                <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;" id="activitySlidePills">
+                    <!-- Diisi dinamis -->
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="promptAddActivitySheet()">
+                    + Tambah Slide Lembar Baru
+                </button>
+            </div>
+
+            <!-- Form 10 Baris -->
+            <div id="activitySheetContent">
+                <!-- Diisi dinamis -->
+            </div>
+        </section>
+
+        <!-- Tab 4: Daftar Hadir Magang (Foto 4) - Rekap Otomatis -->
+        <section id="tab-presensi" class="surface-card" style="display:none;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <div>
+                    <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);">Lembar 4: Daftar Hadir Magang</h3>
+                    <p style="font-size:0.85rem;color:var(--slate-500);">Presensi 30 hari dan rekapitulasi kehadiran otomatis.</p>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;" id="attendanceMonthPills">
+                    <!-- Diisi dinamis -->
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" onclick="promptAddAttendanceSheet()">
+                    + Tambah Bulan Presensi
+                </button>
+            </div>
+
+            <div id="attendanceSheetContent">
+                <!-- Diisi dinamis -->
+            </div>
+        </section>
+
+        <!-- Tab 5: Penilaian Magang DU/DI (Foto 5) -->
+        <section id="tab-penilaian" class="surface-card" style="display:none;">
+            <h3 style="font-size:1.25rem;font-weight:800;margin-bottom:1.25rem;color:var(--slate-900);">Lembar 5: Laporan Penilaian Magang DU/DI</h3>
+            <form onsubmit="handleEvaluationSubmit(event)">
+                <table class="sheet-table" style="margin-bottom:1.75rem;">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width:50px;">No.</th>
+                            <th rowspan="2">Aspek Yang Dinilai</th>
+                            <th colspan="2" style="width:200px;">Penilaian</th>
+                        </tr>
+                        <tr>
+                            <th style="width:100px;">Nilai (0-100)</th>
+                            <th style="width:100px;">Predikat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="4" style="background:#f1f5f9;font-weight:800;">SOFTSKILL</td></tr>
+                        <tr>
+                            <td style="text-align:center;font-weight:700;">A</td>
+                            <td>Menerapkan Softskill yang dibutuhkan dunia kerja.</td>
+                            <td><input type="number" id="eval_a" step="0.01" min="0" max="100" class="table-field" style="border:1px solid #cbd5e1;text-align:center;font-weight:700;" oninput="recalcEvaluation()" required></td>
+                            <td id="eval_a_grade" style="text-align:center;font-weight:800;color:var(--primary);">-</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-weight:700;">B</td>
+                            <td>Menerapkan norma, POS dan K3 yang ada pada dunia kerja.</td>
+                            <td><input type="number" id="eval_b" step="0.01" min="0" max="100" class="table-field" style="border:1px solid #cbd5e1;text-align:center;font-weight:700;" oninput="recalcEvaluation()" required></td>
+                            <td id="eval_b_grade" style="text-align:center;font-weight:800;color:var(--primary);">-</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align:center;font-weight:700;">C</td>
+                            <td>Menerapkan kompetensi teknis yang dipelajari sesuai konsentrasi keahlian.</td>
+                            <td><input type="number" id="eval_c" step="0.01" min="0" max="100" class="table-field" style="border:1px solid #cbd5e1;text-align:center;font-weight:700;" oninput="recalcEvaluation()" required></td>
+                            <td id="eval_c_grade" style="text-align:center;font-weight:800;color:var(--primary);">-</td>
+                        </tr>
+                        <tr style="background:#f8fafc;font-weight:800;">
+                            <td colspan="2" style="text-align:right;padding-right:1rem;">NILAI RATA-RATA AKHIR:</td>
+                            <td id="eval_avg" style="text-align:center;font-size:1.1rem;color:var(--success);">-</td>
+                            <td id="eval_final_grade" style="text-align:center;font-size:1.2rem;color:var(--primary);">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+                    <div>
+                        <strong style="display:block;margin-bottom:0.35rem;font-size:0.85rem;color:var(--slate-700);">Keterangan Nilai:</strong>
+                        <table class="sheet-table" style="max-width:320px;font-size:0.8rem;">
+                            <tr><th>Nilai</th><th>Predikat</th><th>Keterangan</th></tr>
+                            <tr><td>91 - 100</td><td>A</td><td>Sangat Baik</td></tr>
+                            <tr><td>81 - 90</td><td>B</td><td>Baik</td></tr>
+                            <tr><td>75 - 80</td><td>C</td><td>Cukup Baik</td></tr>
+                            <tr><td>&lt; 75</td><td>D</td><td>Kurang</td></tr>
+                        </table>
+                    </div>
+
+                    <div style="text-align:center;background:#f8fafc;border:1px solid var(--slate-200);border-radius:var(--radius-md);padding:1.5rem;">
+                        <input type="text" id="eval_date" class="table-field" style="border:1px solid #cbd5e1;max-width:240px;margin:0 auto 0.75rem;text-align:center;" value="Jakarta, 31 Oktober 2026" required>
+                        <span style="font-size:0.85rem;color:var(--slate-600);font-weight:600;">Pembimbing Dunia Industri</span>
+                        <div style="height:60px;"></div>
+                        <input type="text" id="eval_mentor" class="table-field" style="border:1px solid #cbd5e1;max-width:260px;margin:0 auto;text-align:center;font-weight:700;" placeholder="Nama Pembimbing Industri">
+                    </div>
+                </div>
+
+                <div style="margin-top:1.5rem;text-align:right;">
+                    <button type="submit" class="btn btn-primary">Simpan Penilaian DU/DI</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- WAF Status Telemetry Modal -->
+    <div id="wafModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.6);z-index:200;align-items:center;justify-content:center;">
+        <div style="background:#fff;border-radius:var(--radius-lg);padding:2rem;max-width:620px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-lg);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <div class="waf-pulse"></div>
+                    <h3 style="font-size:1.2rem;font-weight:800;color:var(--slate-900);">Web Application Firewall (WAF)</h3>
+                </div>
+                <button type="button" onclick="toggleWafModal()" style="border:none;background:none;font-size:1.5rem;cursor:pointer;">&times;</button>
+            </div>
+            <p style="font-size:0.85rem;color:var(--slate-500);margin-bottom:1rem;">WAF secara proaktif menginspeksi seluruh parameter query, body request, header, dan path terhadap serangan SQLi, XSS, RCE, LFI, dan Scanner Bots.</p>
+            
+            <div id="wafModalBody">
+                <p>Memuat telemetri WAF...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 Library -->
+    <script src="vendor/sweetalert2/sweetalert2.all.min.js"></script>
+
+    <!-- Script App Modular -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
