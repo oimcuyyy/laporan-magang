@@ -328,7 +328,7 @@ class StudentController extends Controller
         $newMajor = $validated['major'] ?? $student->major;
         $newClass = $validated['class'] ?? $student->class;
         $newYear = $validated['academic_year'] ?? ($student->academic_year ?: '2026/2027');
-        $newName = $validated['name'] ?? ($student->name.' (Kloning '.$newClass.')');
+        $newName = $validated['name'] ?? ('Siswa '.$newClass);
 
         DB::beginTransaction();
         try {
@@ -341,23 +341,23 @@ class StudentController extends Controller
             $newStudent = Student::create([
                 'name' => $newName,
                 'nis' => $newNis,
-                'nisn' => $student->nisn ? $student->nisn.rand(1, 9) : null,
+                'nisn' => null,
                 'class' => $newClass,
                 'major' => $newMajor,
                 'field_of_expertise' => $student->field_of_expertise ?: 'Bisnis Manajemen dan Teknologi',
                 'internship_period' => $student->internship_period,
                 'academic_year' => $newYear,
-                'birth_place' => $student->birth_place,
-                'birth_date' => $student->birth_date,
+                'birth_place' => null,
+                'birth_date' => null,
                 'gender' => $student->gender,
                 'religion' => $student->religion,
-                'student_address' => $student->student_address,
-                'student_phone' => $student->student_phone,
-                'father_name' => $student->father_name,
-                'father_phone' => $student->father_phone,
-                'mother_name' => $student->mother_name,
-                'mother_phone' => $student->mother_phone,
-                'parent_address' => $student->parent_address,
+                'student_address' => null,
+                'student_phone' => null,
+                'father_name' => null,
+                'father_phone' => null,
+                'mother_name' => null,
+                'mother_phone' => null,
+                'parent_address' => null,
                 'school_name' => $student->school_name,
                 'school_address' => $student->school_address,
                 'company_name' => $student->company_name,

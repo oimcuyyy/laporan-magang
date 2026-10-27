@@ -28,7 +28,7 @@ class LaporanMagangTest extends TestCase
         $response = $this->get('/students');
         $response->assertStatus(200);
         $response->assertSee('Laporan Magang');
-        $response->assertSee('Muhammad Rochimuloh');
+        $response->assertSee('Nama Siswa / Nama Anda');
     }
 
     public function test_student_show_displays_five_sheets(): void

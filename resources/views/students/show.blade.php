@@ -1677,7 +1677,7 @@
                             <!-- Nomor HP & Periode Magang -->
                             <div class="form-group">
                                 <label class="form-label">Nomor HP / WhatsApp Siswa</label>
-                                <input type="text" name="student_phone" class="form-control" value="{{ old('student_phone', $student->student_phone) }}" placeholder="081314854567">
+                                <input type="text" name="student_phone" class="form-control" value="{{ old('student_phone', $student->student_phone) }}" placeholder="08xxxxxxxxxx">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Periode Magang</label>
@@ -1687,7 +1687,7 @@
                             <!-- Alamat Lengkap Siswa -->
                             <div class="form-group" style="grid-column:span 2;">
                                 <label class="form-label">Alamat Lengkap Siswa</label>
-                                <textarea name="student_address" class="form-control form-control-textarea" rows="2" placeholder="Jl. Damai IV, RT. 002 / RW. 002">{{ old('student_address', $student->student_address) }}</textarea>
+                                <textarea name="student_address" class="form-control form-control-textarea" rows="2" placeholder="Jl. Alamat Tempat Tinggal Siswa">{{ old('student_address', $student->student_address) }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -1707,27 +1707,27 @@
                             <!-- Ayah -->
                             <div class="form-group">
                                 <label class="form-label">Nama Ayah</label>
-                                <input type="text" name="father_name" class="form-control" value="{{ old('father_name', $student->father_name) }}" placeholder="Nama Lengkap Ayah">
+                                <input type="text" name="father_name" class="form-control" value="{{ old('father_name', $student->father_name) }}" placeholder="Nama Lengkap Ayah / Wali">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nomor HP Ayah</label>
-                                <input type="text" name="father_phone" class="form-control" value="{{ old('father_phone', $student->father_phone) }}" placeholder="081298765432">
+                                <input type="text" name="father_phone" class="form-control" value="{{ old('father_phone', $student->father_phone) }}" placeholder="08xxxxxxxxxx">
                             </div>
 
                             <!-- Ibu -->
                             <div class="form-group">
                                 <label class="form-label">Nama Ibu</label>
-                                <input type="text" name="mother_name" class="form-control" value="{{ old('mother_name', $student->mother_name) }}" placeholder="Nama Lengkap Ibu">
+                                <input type="text" name="mother_name" class="form-control" value="{{ old('mother_name', $student->mother_name) }}" placeholder="Nama Lengkap Ibu / Wali">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Nomor HP Ibu</label>
-                                <input type="text" name="mother_phone" class="form-control" value="{{ old('mother_phone', $student->mother_phone) }}" placeholder="081287654321">
+                                <input type="text" name="mother_phone" class="form-control" value="{{ old('mother_phone', $student->mother_phone) }}" placeholder="08xxxxxxxxxx">
                             </div>
 
                             <!-- Alamat Orang Tua -->
                             <div class="form-group" style="grid-column:span 2;">
                                 <label class="form-label">Alamat Lengkap Orang Tua</label>
-                                <textarea name="parent_address" class="form-control form-control-textarea" rows="2" placeholder="Jl. Damai IV">{{ old('parent_address', $student->parent_address) }}</textarea>
+                                <textarea name="parent_address" class="form-control form-control-textarea" rows="2" placeholder="Jl. Alamat Orang Tua Siswa">{{ old('parent_address', $student->parent_address) }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -1881,27 +1881,27 @@
                 <tr>
                     <td style="vertical-align:top;">Tempat, Tanggal Lahir</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->birth_place ?: 'Jakarta' }}, {{ $student->birth_date ?: '09 Desember 2008' }}</td>
+                    <td class="paper-dotted">{{ $student->birth_place ?: '-' }}{{ $student->birth_date ? ', ' . $student->birth_date : '' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Jenis Kelamin</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->gender ?: 'Laki-Laki' }}</td>
+                    <td class="paper-dotted">{{ $student->gender ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Agama</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->religion ?: 'Islam' }}</td>
+                    <td class="paper-dotted">{{ $student->religion ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Alamat</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->student_address ?: 'Jl. Damai IV Rt.002 / RW.002' }}</td>
+                    <td class="paper-dotted">{{ $student->student_address ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Nomor HP</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->student_phone ?: '081314854567' }}</td>
+                    <td class="paper-dotted">{{ $student->student_phone ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Nama Orang Tua</td>
@@ -1911,7 +1911,7 @@
                 <tr>
                     <td style="padding-left:1.5rem;vertical-align:top;">Ayah</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->father_name ?: 'Mubasir' }}</td>
+                    <td class="paper-dotted">{{ $student->father_name ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="padding-left:1.5rem;vertical-align:top;">Nomor HP</td>
@@ -1921,7 +1921,7 @@
                 <tr>
                     <td style="padding-left:1.5rem;vertical-align:top;">Ibu</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->mother_name ?: 'Rita Murni' }}</td>
+                    <td class="paper-dotted">{{ $student->mother_name ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="padding-left:1.5rem;vertical-align:top;">Nomor HP</td>
@@ -1931,7 +1931,7 @@
                 <tr>
                     <td style="padding-left:1.5rem;vertical-align:top;">Alamat Orang Tua</td>
                     <td style="vertical-align:top;">:</td>
-                    <td class="paper-dotted">{{ $student->parent_address ?: 'Jl. Damai IV' }}</td>
+                    <td class="paper-dotted">{{ $student->parent_address ?: '-' }}</td>
                 </tr>
                 <tr>
                     <td style="vertical-align:top;">Nama Sekolah</td>

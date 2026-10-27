@@ -28,9 +28,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 1. Siswa Utama (Sesuai Berkas Fisik Foto Asli)
+        // 1. Siswa Utama (Template Berkas SMKN 20)
         $student1 = Student::create([
-            'name' => 'Muhammad Rochimuloh',
+            'name' => 'Nama Siswa / Nama Anda',
             'nis' => '14450',
             'nisn' => '0081234567',
             'class' => 'XI RPL',
@@ -38,16 +38,16 @@ class DatabaseSeeder extends Seeder
             'field_of_expertise' => 'Bisnis Manajemen dan Teknologi',
             'internship_period' => '01 Oktober 2026 - 30 November 2026',
             'birth_place' => 'Jakarta',
-            'birth_date' => '09 Desember 2008',
+            'birth_date' => '01 Januari 2008',
             'gender' => 'Laki-Laki',
             'religion' => 'Islam',
-            'student_address' => 'Jl. Damai IV, RT. 002 / RW. 002',
-            'student_phone' => '081314854567',
-            'father_name' => 'Mubasir',
-            'father_phone' => '081298765432',
-            'mother_name' => 'Rita Murni',
-            'mother_phone' => '081287654321',
-            'parent_address' => 'Jl. Damai IV, RT. 002 / RW. 002',
+            'student_address' => 'Jl. Alamat Tempat Tinggal Siswa RT/RW',
+            'student_phone' => '08xxxxxxxxxx',
+            'father_name' => 'Nama Ayah / Wali',
+            'father_phone' => '08xxxxxxxxxx',
+            'mother_name' => 'Nama Ibu / Wali',
+            'mother_phone' => '08xxxxxxxxxx',
+            'parent_address' => 'Jl. Alamat Orang Tua / Wali RT/RW',
             'school_name' => 'SMK Negeri 20 Jakarta',
             'school_address' => 'Jl. Melati No. 24 RT 13/RW 10, Cilandak Bar., Kec. Cilandak, Kota Jaksel',
             'company_name' => 'Kantor Lurah Bintaro',

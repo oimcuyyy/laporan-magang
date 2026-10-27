@@ -23,7 +23,7 @@ class PresentationModeProtectionTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Laporan Magang');
-        $response->assertSee('Muhammad Rochimuloh');
+        $response->assertSee('Nama Siswa / Nama Anda');
     }
 
     public function test_public_visitor_can_view_student_details_and_print_without_login(): void

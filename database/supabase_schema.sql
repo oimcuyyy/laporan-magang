@@ -21,19 +21,19 @@ CREATE TABLE IF NOT EXISTS public.students (
     major VARCHAR(100) DEFAULT 'Rekayasa Perangkat Lunak',
     field_of_expertise VARCHAR(100) DEFAULT 'Bisnis Manajemen dan Teknologi',
     internship_period VARCHAR(100) DEFAULT '01 Oktober 2026 - 31 Desember 2026',
-    birth_place VARCHAR(100) DEFAULT 'Jakarta',
-    birth_date VARCHAR(50) DEFAULT '09 Desember 2008',
+    birth_place VARCHAR(100) DEFAULT NULL,
+    birth_date VARCHAR(50) DEFAULT NULL,
     gender VARCHAR(20) DEFAULT 'Laki-Laki',
     religion VARCHAR(30) DEFAULT 'Islam',
-    student_address TEXT DEFAULT 'Jl. Damai IV, RT. 002 / RW. 002',
-    student_phone VARCHAR(30) DEFAULT '081314854567',
+    student_address TEXT DEFAULT NULL,
+    student_phone VARCHAR(30) DEFAULT NULL,
     
     -- Data Orang Tua
-    father_name VARCHAR(100) DEFAULT 'Mubasir',
-    father_phone VARCHAR(30),
-    mother_name VARCHAR(100) DEFAULT 'Rita Murni',
-    mother_phone VARCHAR(30),
-    parent_address TEXT DEFAULT 'Jl. Damai IV, RT. 002 / RW. 002',
+    father_name VARCHAR(100) DEFAULT NULL,
+    father_phone VARCHAR(30) DEFAULT NULL,
+    mother_name VARCHAR(100) DEFAULT NULL,
+    mother_phone VARCHAR(30) DEFAULT NULL,
+    parent_address TEXT DEFAULT NULL,
     
     -- Sekolah & Industri (DU/DI)
     school_name VARCHAR(150) DEFAULT 'SMK Negeri 20 Jakarta',
@@ -220,7 +220,7 @@ CREATE POLICY "waf_logs_service_role_policy" ON public.waf_logs
 -- 4. DATA AWAL (SEED DATA DARI FOTO BERKAS ASLI SMK 20)
 -- -------------------------------------------------------------------------
 
--- Siswa 1: Muhammad Rochimuloh
+-- Siswa 1: Template Berkas SMKN 20
 INSERT INTO public.students (
     id, name, nis, nisn, class, major, field_of_expertise, internship_period,
     birth_place, birth_date, gender, religion, student_address, student_phone,
@@ -228,10 +228,10 @@ INSERT INTO public.students (
     school_name, school_address, company_name, company_address,
     teacher_name, teacher_phone, mentor_name
 ) VALUES (
-    1, 'Muhammad Rochimuloh', '14450', '0081234567', 'XI RPL', 'Rekayasa Perangkat Lunak',
+    1, 'Nama Siswa / Nama Anda', '14450', '0081234567', 'XI RPL', 'Rekayasa Perangkat Lunak',
     'Bisnis Manajemen dan Teknologi', '01 Oktober 2026 - 31 Desember 2026',
-    'Jakarta', '09 Desember 2008', 'Laki-Laki', 'Islam', 'Jl. Damai IV, RT. 002 / RW. 002', '081314854567',
-    'Mubasir', '081298765432', 'Rita Murni', '081287654321', 'Jl. Damai IV, RT. 002 / RW. 002',
+    'Jakarta', '01 Januari 2008', 'Laki-Laki', 'Islam', 'Jl. Alamat Tempat Tinggal Siswa RT/RW', '08xxxxxxxxxx',
+    'Nama Ayah / Wali', '08xxxxxxxxxx', 'Nama Ibu / Wali', '08xxxxxxxxxx', 'Jl. Alamat Orang Tua / Wali RT/RW',
     'SMK Negeri 20 Jakarta', 'Jl. Melati No. 24 RT 13/RW 10, Cilandak Bar., Kec. Cilandak, Kota Jaksel',
     'Kantor Lurah Bintaro', 'Jl. B.C. Veteran Raya No. 1, RT 1/RW 3, Bintaro',
     'Kuswanto, M.Kom', '0858-8192-1976', 'Sujatmo, S.Sos'

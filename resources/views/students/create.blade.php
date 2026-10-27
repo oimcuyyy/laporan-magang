@@ -147,7 +147,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="name">Nama Siswa <span style="color:var(--danger)">*</span></label>
-                    <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" placeholder="Contoh: Muhammad Rochimuloh" required>
+                    <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" placeholder="Contoh: Nama Siswa / Nama Anda" required>
                 </div>
 
                 <div class="form-group">
@@ -195,7 +195,7 @@
 
                 <div class="form-group">
                     <label for="birth_date">Tanggal Lahir</label>
-                    <input type="text" id="birth_date" name="birth_date" class="form-control" value="{{ old('birth_date', '09 Desember 2008') }}" placeholder="Contoh: 09 Desember 2008">
+                    <input type="text" id="birth_date" name="birth_date" class="form-control" value="{{ old('birth_date') }}" placeholder="Contoh: 01 Januari 2008">
                 </div>
 
                 <div class="form-group">
@@ -205,12 +205,12 @@
 
                 <div class="form-group">
                     <label for="student_phone">Nomor HP Siswa</label>
-                    <input type="text" id="student_phone" name="student_phone" class="form-control" value="{{ old('student_phone') }}" placeholder="Contoh: 081314854567">
+                    <input type="text" id="student_phone" name="student_phone" class="form-control" value="{{ old('student_phone') }}" placeholder="Contoh: 08xxxxxxxxxx">
                 </div>
 
                 <div class="form-group form-group-full">
                     <label for="student_address">Alamat Siswa</label>
-                    <textarea id="student_address" name="student_address" class="form-control" placeholder="Contoh: Jl. Damai IV, RT. 002 / RW. 002">{{ old('student_address') }}</textarea>
+                    <textarea id="student_address" name="student_address" class="form-control" placeholder="Contoh: Jl. Alamat Tempat Tinggal Siswa RT/RW">{{ old('student_address') }}</textarea>
                 </div>
 
                 <div class="form-group form-group-full">
@@ -237,27 +237,27 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="father_name">Nama Ayah</label>
-                    <input type="text" id="father_name" name="father_name" class="form-control" value="{{ old('father_name') }}" placeholder="Contoh: Mubasir">
+                    <input type="text" id="father_name" name="father_name" class="form-control" value="{{ old('father_name') }}" placeholder="Contoh: Nama Ayah / Wali">
                 </div>
 
                 <div class="form-group">
                     <label for="father_phone">Nomor HP Ayah</label>
-                    <input type="text" id="father_phone" name="father_phone" class="form-control" value="{{ old('father_phone') }}">
+                    <input type="text" id="father_phone" name="father_phone" class="form-control" value="{{ old('father_phone') }}" placeholder="Contoh: 08xxxxxxxxxx">
                 </div>
 
                 <div class="form-group">
                     <label for="mother_name">Nama Ibu</label>
-                    <input type="text" id="mother_name" name="mother_name" class="form-control" value="{{ old('mother_name') }}" placeholder="Contoh: Rita Murni">
+                    <input type="text" id="mother_name" name="mother_name" class="form-control" value="{{ old('mother_name') }}" placeholder="Contoh: Nama Ibu / Wali">
                 </div>
 
                 <div class="form-group">
                     <label for="mother_phone">Nomor HP Ibu</label>
-                    <input type="text" id="mother_phone" name="mother_phone" class="form-control" value="{{ old('mother_phone') }}">
+                    <input type="text" id="mother_phone" name="mother_phone" class="form-control" value="{{ old('mother_phone') }}" placeholder="Contoh: 08xxxxxxxxxx">
                 </div>
 
                 <div class="form-group form-group-full">
                     <label for="parent_address">Alamat Orang Tua</label>
-                    <textarea id="parent_address" name="parent_address" class="form-control">{{ old('parent_address') }}</textarea>
+                    <textarea id="parent_address" name="parent_address" class="form-control" placeholder="Contoh: Jl. Alamat Orang Tua Siswa RT/RW">{{ old('parent_address') }}</textarea>
                 </div>
             </div>
         </div>
