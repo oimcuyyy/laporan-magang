@@ -855,18 +855,20 @@
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
-        font-size: 0.9rem;
+        font-size: 0.88rem;
         border: 1px solid #e2e8f0;
         border-radius: 14px;
+        background: #ffffff;
         overflow: hidden;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
     }
 
     .data-table th,
     .data-table td {
         border-bottom: 1px solid #f1f5f9;
         border-right: 1px solid #f1f5f9;
-        padding: 0.75rem 0.95rem;
-        vertical-align: middle;
+        padding: 0.65rem 0.8rem;
+        vertical-align: top;
     }
 
     .data-table th:last-child,
@@ -879,54 +881,160 @@
     }
 
     .data-table tbody tr:hover {
-        background-color: #f8fafc;
+        background-color: #fbfcfe;
     }
 
     .data-table th {
         background: #f8fafc;
-        font-weight: 800;
-        color: var(--slate-800);
-        text-align: center;
-        letter-spacing: -0.01em;
-        border-bottom: 1.5px solid #e2e8f0;
+        font-weight: 700;
+        color: var(--slate-700);
+        font-size: 0.82rem;
+        letter-spacing: 0.02em;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0.8rem 0.85rem;
     }
 
     .table-input {
         width: 100%;
-        padding: 0.5rem 0.75rem;
-        border: 1.5px solid transparent;
-        border-radius: 10px;
-        background: transparent;
+        box-sizing: border-box;
+        padding: 0.55rem 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        background: #ffffff;
         font-family: inherit;
-        font-size: 0.9rem;
+        font-size: 0.87rem;
         color: var(--slate-900);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        line-height: 1.45;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
     }
 
     .table-input:hover {
-        background: #f1f5f9;
-        border-color: #e2e8f0;
+        background: #fafbfc;
+        border-color: #cbd5e1;
     }
 
     .table-input:focus {
         outline: none;
         background: #ffffff;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
     }
 
-    /* Slide Controls for Uraian Kegiatan (Tombol Plus & Carousel Tabs - Rounded Pills) */
+    textarea.table-input {
+        min-height: 54px;
+        line-height: 1.45;
+        resize: vertical;
+        display: block;
+    }
+
+    /* Custom Approval Toggle Pill */
+    .approval-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 0.45rem;
+        cursor: pointer;
+        user-select: none;
+        padding: 0.28rem 0.6rem;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .approval-toggle:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+
+    .approval-toggle-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    .approval-toggle-indicator {
+        width: 15px;
+        height: 15px;
+        border-radius: 4px;
+        border: 1.5px solid #94a3b8;
+        background: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    .approval-check-icon {
+        width: 11px;
+        height: 11px;
+        display: none;
+        color: #ffffff;
+    }
+
+    .approval-toggle-checkbox:checked + .approval-toggle-indicator {
+        background: #16a34a;
+        border-color: #16a34a;
+    }
+
+    .approval-toggle-checkbox:checked + .approval-toggle-indicator .approval-check-icon {
+        display: block;
+    }
+
+    .approval-toggle-text {
+        font-size: 0.76rem;
+        font-weight: 600;
+        color: var(--slate-600);
+        letter-spacing: -0.01em;
+    }
+
+    .approval-toggle-checkbox:checked ~ .approval-toggle-text {
+        color: #15803d;
+        font-weight: 700;
+    }
+
+    /* Slide Controls for Uraian Kegiatan & Presensi */
     .slide-toolbar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: #f8fafc;
-        border: 1.5px solid #e2e8f0;
-        border-radius: 9999px;
-        padding: 0.5rem 1rem;
-        margin-bottom: 1.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 0.65rem 0.9rem;
+        margin-bottom: 1.25rem;
         flex-wrap: wrap;
         gap: 0.75rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+    }
+
+    .slide-toolbar-left {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+    }
+
+    .slide-toolbar-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--slate-500);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .slide-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-left: auto;
     }
 
     .slide-pills {
@@ -937,23 +1045,29 @@
     }
 
     .slide-pill {
-        padding: 0.45rem 1.1rem;
-        border-radius: 9999px;
-        border: 1.5px solid #e2e8f0;
+        padding: 0.4rem 0.85rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
         background: #ffffff;
-        font-size: 0.84rem;
-        font-weight: 700;
+        font-size: 0.82rem;
+        font-weight: 600;
         color: var(--slate-700);
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.35rem;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+
+    .slide-pill-sub {
+        font-size: 0.74rem;
+        opacity: 0.82;
+        font-weight: 500;
     }
 
     .slide-pill:hover {
-        background: var(--slate-50);
+        background: #f1f5f9;
         border-color: #cbd5e1;
         color: var(--slate-900);
         transform: translateY(-1px);
@@ -963,7 +1077,39 @@
         background: linear-gradient(135deg, #1d4ed8, #2563eb);
         color: #ffffff;
         border-color: transparent;
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.25);
+        font-weight: 700;
+    }
+
+    /* Sheet Meta Bar (Month & Sheet Info) */
+    .sheet-meta-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.25rem;
+        background: #ffffff;
+        padding: 0.75rem 1.15rem;
+        border-radius: 14px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    .sheet-meta-field {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+    }
+
+    .sheet-meta-label {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: var(--slate-700);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
     }
 
     /* Modal dialog - Sleek Glass Elevation */
@@ -2074,27 +2220,33 @@
 <div class="tab-card word-page-section" id="page-3-uraian">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
         <div>
-            <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);">Lembar 3: Uraian Kegiatan Magang (Jurnal Harian)</h3>
-            <p style="font-size:0.85rem;color:var(--slate-500);">Format berkas 10 baris per lembar. Gunakan tombol plus <strong>+</strong> untuk menambah slide / lembar berikutnya saat telah mencapai 10 kegiatan.</p>
+            <h3 style="font-size:1.25rem;font-weight:800;color:var(--slate-900);letter-spacing:-0.01em;">Lembar 3: Uraian Kegiatan Magang (Jurnal Harian)</h3>
+            <p style="font-size:0.85rem;color:var(--slate-500);margin-top:0.25rem;">Format berkas 10 baris per lembar. Gunakan tombol plus <strong>+</strong> untuk menambah slide / lembar berikutnya saat telah mencapai 10 kegiatan.</p>
         </div>
     </div>
 
     <!-- Slide Carousel Navigation Bar -->
     <div class="slide-toolbar">
-        <div class="slide-pills">
-            <span style="font-size:0.85rem;font-weight:700;color:var(--slate-600);margin-right:0.25rem;">Pilih Lembar Slide:</span>
-            @foreach($student->activitySheets as $sheet)
-                <a href="{{ route('students.show', [$student->id, 'tab' => 'uraian', 'sheet' => $sheet->id]) }}#page-3-uraian" class="slide-pill {{ $sheet->id === $currentSheet->id ? 'active' : '' }}" onclick="preserveScrollPosition()">
-                    Slide {{ $sheet->sheet_number }} ({{ $sheet->month_name }})
-                </a>
-            @endforeach
+        <div class="slide-toolbar-left">
+            <span class="slide-toolbar-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="color:var(--primary);"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                Pilih Slide:
+            </span>
+            <div class="slide-pills">
+                @foreach($student->activitySheets as $sheet)
+                    <a href="{{ route('students.show', [$student->id, 'tab' => 'uraian', 'sheet' => $sheet->id]) }}#page-3-uraian" class="slide-pill {{ $sheet->id === $currentSheet->id ? 'active' : '' }}" onclick="preserveScrollPosition()">
+                        Slide {{ $sheet->sheet_number }}
+                        <span class="slide-pill-sub">({{ $sheet->month_name }})</span>
+                    </a>
+                @endforeach
+            </div>
         </div>
 
-        <div style="display:flex;gap:0.5rem;align-items:center;">
+        <div class="slide-toolbar-actions">
             <!-- Tombol Tambah Lembar Baru dengan SweetAlert2 -->
             <button type="button" class="btn btn-primary btn-sm" onclick="promptAddSheetWithSwal()">
                 <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Tambah Slide Lembar Baru (+)
+                Tambah Slide (+)
             </button>
 
             @if($student->activitySheets->count() > 1)
@@ -2120,34 +2272,40 @@
         @csrf
         @method('PUT')
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;background:#ffffff;padding:0.75rem 1.25rem;border-radius:16px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-                <label style="font-weight:700;font-size:0.9rem;color:var(--slate-800);">Bulan Kegiatan:</label>
-                <input type="text" name="month_name" value="{{ old('month_name', $currentSheet->month_name) }}" class="form-control" style="width:250px;" required>
+        <div class="sheet-meta-bar">
+            <div class="sheet-meta-field">
+                <span class="sheet-meta-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--primary);"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Bulan Kegiatan:
+                </span>
+                <input type="text" name="month_name" value="{{ old('month_name', $currentSheet->month_name) }}" class="form-control" style="width:260px;font-weight:600;" placeholder="Contoh: Oktober 2026" required>
             </div>
-            <span class="badge badge-blue">Lembar Ke-{{ $currentSheet->sheet_number }} (10 Baris)</span>
+            <span class="badge badge-blue" style="font-weight:700;display:inline-flex;align-items:center;gap:0.35rem;padding:0.4rem 0.85rem;border-radius:8px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                Lembar Ke-{{ $currentSheet->sheet_number }} (10 Baris)
+            </span>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table class="data-table">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+            <table class="data-table" style="min-width:800px;width:100%;">
                 <thead>
                     <tr>
-                        <th style="width:50px;">No.</th>
-                        <th style="width:160px;">Hari / Tanggal</th>
-                        <th style="width:180px;">Divisi / Bagian</th>
-                        <th>Uraian Pekerjaan</th>
-                        <th style="width:160px;">Pembimbing Industri</th>
+                        <th style="width:44px;min-width:44px;text-align:center;">No.</th>
+                        <th style="width:170px;min-width:160px;text-align:left;">Hari / Tanggal</th>
+                        <th style="width:180px;min-width:170px;text-align:left;">Divisi / Bagian</th>
+                        <th style="min-width:250px;text-align:left;">Uraian Pekerjaan</th>
+                        <th style="width:160px;min-width:155px;text-align:left;">Pembimbing Industri</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($currentSheet->activityLogs as $log)
                         <tr>
-                            <td style="text-align:center;font-weight:700;">
+                            <td style="text-align:center;font-weight:700;color:var(--slate-700);padding-top:0.95rem;">
                                 {{ $log->row_index }}.
                                 <input type="hidden" name="logs[{{ $log->id }}][id]" value="{{ $log->id }}">
                             </td>
                             <td>
-                                <input type="text" name="logs[{{ $log->id }}][day_date]" value="{{ old("logs.{$log->id}.day_date", $log->day_date) }}" class="table-input" placeholder="e.g. Kamis, 01-10-26">
+                                <input type="text" name="logs[{{ $log->id }}][day_date]" value="{{ old("logs.{$log->id}.day_date", $log->day_date) }}" class="table-input" placeholder="e.g. Kamis, 01-10-2026">
                             </td>
                             <td>
                                 <input type="text" name="logs[{{ $log->id }}][division]" value="{{ old("logs.{$log->id}.division", $log->division) }}" class="table-input" placeholder="e.g. Perpanjang Makam">
@@ -2156,11 +2314,16 @@
                                 <textarea name="logs[{{ $log->id }}][job_description]" class="table-input" rows="2" placeholder="Uraian pekerjaan harian...">{{ old("logs.{$log->id}.job_description", $log->job_description) }}</textarea>
                             </td>
                             <td>
-                                <input type="text" name="logs[{{ $log->id }}][supervisor_note]" value="{{ old("logs.{$log->id}.supervisor_note", $log->supervisor_note) }}" class="table-input" placeholder="Paraf/Catatan">
-                                <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.75rem;color:var(--slate-600);margin-top:0.25rem;">
-                                    <input type="checkbox" name="logs[{{ $log->id }}][is_approved]" value="1" {{ $log->is_approved ? 'checked' : '' }}>
-                                    Disetujui
-                                </label>
+                                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                                    <input type="text" name="logs[{{ $log->id }}][supervisor_note]" value="{{ old("logs.{$log->id}.supervisor_note", $log->supervisor_note) }}" class="table-input" placeholder="Paraf/Catatan">
+                                    <label class="approval-toggle">
+                                        <input type="checkbox" name="logs[{{ $log->id }}][is_approved]" value="1" {{ $log->is_approved ? 'checked' : '' }} class="approval-toggle-checkbox">
+                                        <span class="approval-toggle-indicator">
+                                            <svg class="approval-check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </span>
+                                        <span class="approval-toggle-text">Disetujui</span>
+                                    </label>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -2170,7 +2333,7 @@
 
         <div class="form-submit-row" style="margin-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
             <span style="font-size:0.85rem;color:var(--slate-500);">Tips: Jika kegiatan telah mencapai baris ke-10, klik tombol <strong>Tambah Slide Lembar Baru (+)</strong> di kanan atas.</span>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:0.45rem;">
                 <svg class="icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
                 Simpan Lembar Ke-{{ $currentSheet->sheet_number }}
             </button>
@@ -2267,12 +2430,18 @@
         @csrf
         @method('PUT')
 
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;background:#ffffff;padding:0.75rem 1.25rem;border-radius:16px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
-            <div style="display:flex;align-items:center;gap:0.5rem;">
-                <label style="font-weight:700;font-size:0.9rem;color:var(--slate-800);">Bulan :</label>
-                <input type="text" name="month_name" value="{{ old('month_name', $currentAttSheet->month_name) }}" class="form-control" style="width:250px;" required>
+        <div class="sheet-meta-bar">
+            <div class="sheet-meta-field">
+                <span class="sheet-meta-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:#16a34a;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Bulan Presensi:
+                </span>
+                <input type="text" name="month_name" value="{{ old('month_name', $currentAttSheet->month_name) }}" class="form-control" style="width:260px;font-weight:600;" placeholder="Contoh: Oktober 2026" required>
             </div>
-            <span class="badge badge-green" id="attTargetDaysBadge">{{ $currentAttSheet->total_target_days }} Hari</span>
+            <span class="badge badge-green" id="attTargetDaysBadge" style="font-weight:700;display:inline-flex;align-items:center;gap:0.35rem;padding:0.4rem 0.85rem;border-radius:8px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                {{ $currentAttSheet->total_target_days }} Hari Presensi
+            </span>
         </div>
 
         <div style="overflow-x:auto;">
