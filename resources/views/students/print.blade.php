@@ -543,10 +543,10 @@
                     <tr>
                         <td style="text-align:center;font-weight:600;">{{ $record->day_number }}.</td>
                         <td>{{ $record->day_date }}</td>
-                        <td style="text-align:center;font-weight:700;">{{ $record->status === 'H' ? '&#10003;' : '' }}</td>
-                        <td style="text-align:center;">{{ $record->status === 'S' ? '&#10003;' : '' }}</td>
-                        <td style="text-align:center;">{{ $record->status === 'I' ? '&#10003;' : '' }}</td>
-                        <td style="text-align:center;">{{ $record->status === 'A' ? '&#10003;' : '' }}</td>
+                        <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'H' ? '&#10003;' : '' !!}</td>
+                        <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'S' ? '&#10003;' : '' !!}</td>
+                        <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'I' ? '&#10003;' : '' !!}</td>
+                        <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'A' ? '&#10003;' : '' !!}</td>
                         <td>{{ $record->notes }}</td>
                     </tr>
                 @endforeach
