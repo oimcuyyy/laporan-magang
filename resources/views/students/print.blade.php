@@ -23,6 +23,7 @@
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -44,11 +45,13 @@
             right: 20px;
             z-index: 1000;
             display: flex;
+            align-items: center;
             gap: 10px;
             background: #ffffff;
-            padding: 10px 16px;
-            border-radius: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            padding: 8px 14px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.05);
         }
 
         .btn-print {
@@ -57,24 +60,78 @@
             border: none;
             padding: 8px 18px;
             font-weight: 700;
-            border-radius: 20px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13.5px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-print:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-download {
+            background: #059669;
+            color: #ffffff;
+            border: none;
+            padding: 8px 18px;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+        }
+
+        .btn-download:hover {
+            background: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+        }
+
+        .btn-download:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-close {
-            background: #f1f5f9;
+            background: #f8fafc;
             color: #334155;
             border: 1px solid #cbd5e1;
-            padding: 8px 18px;
+            padding: 8px 16px;
             font-weight: 600;
-            border-radius: 20px;
+            border-radius: 12px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13.5px;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-close:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .spin-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         @page {
@@ -392,14 +449,23 @@
     $todayIndo = now()->format('j') . ' ' . ($bulanIndo[(int) now()->format('n')] ?? now()->format('F')) . ' ' . now()->format('Y');
 @endphp
     <!-- Floating Toolbar -->
-    <div class="print-toolbar">
-        <a href="{{ route('students.show', $student->id) }}" class="btn-close">&larr; Kembali ke Web</a>
-        <button type="button" onclick="window.print()" class="btn-print">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Cetak / Simpan PDF
+    <div class="print-toolbar" id="mainPrintToolbar">
+        <a href="{{ route('students.show', $student->id) }}" class="btn-close" title="Kembali ke halaman berkas siswa">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali ke Web
+        </a>
+        <button type="button" onclick="window.print()" class="btn-print" title="Buka dialog cetak browser (bisa Simpan sebagai PDF)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Cetak Dokumen
+        </button>
+        <button type="button" id="btnDownloadPdf" onclick="handleDownloadPdfDirectly()" class="btn-download" title="Unduh langsung file PDF 5 lembar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span id="btnDownloadPdfText">Download PDF</span>
         </button>
     </div>
 
+    <!-- Wrapper untuk seluruh 5 lembar A4 -->
+    <div id="printDocumentWrapper">
     <!-- ==================================================== -->
     <!-- LEMBAR 1: COVER LAPORAN (FOTO 1)                     -->
     <!-- ==================================================== -->
@@ -855,5 +921,53 @@
             </div>
         </div>
     </div>
+    </div> <!-- /#printDocumentWrapper -->
+
+    <script>
+        async function handleDownloadPdfDirectly() {
+            const btn = document.getElementById('btnDownloadPdf');
+            const btnText = document.getElementById('btnDownloadPdfText');
+            
+            if (typeof html2pdf === 'undefined') {
+                window.print();
+                return;
+            }
+
+            btn.disabled = true;
+            btnText.textContent = 'Menyiapkan PDF...';
+
+            // Floating progress toast
+            const toast = document.createElement('div');
+            toast.id = 'pdfToast';
+            toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:12px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:9999;display:flex;align-items:center;gap:10px;';
+            toast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="spin-icon"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Sedang merender 5 lembar A4 ke file PDF...';
+            document.body.appendChild(toast);
+
+            try {
+                const element = document.getElementById('printDocumentWrapper');
+                const studentNameSlug = "{{ \Illuminate\Support\Str::slug($student->name) ?: 'siswa' }}";
+                const opt = {
+                    margin: 0,
+                    filename: `Laporan_Magang_${studentNameSlug}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true, logging: false },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'] }
+                };
+
+                await html2pdf().set(opt).from(element).save();
+
+                toast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Berhasil mendownload berkas PDF!';
+                setTimeout(() => toast.remove(), 3500);
+            } catch (err) {
+                console.error('Gagal generate html2pdf:', err);
+                toast.remove();
+                window.print();
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Download PDF';
+            }
+        }
+    </script>
 </body>
 </html>

@@ -374,6 +374,42 @@
         font-weight: 600;
     }
 
+    .btn-sidebar-print,
+    .btn-sidebar-pdf {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.55rem 0.85rem;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .btn-sidebar-print {
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        color: #1e40af;
+    }
+    .btn-sidebar-print:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+        transform: translateY(-1px);
+    }
+    .btn-sidebar-pdf {
+        background: linear-gradient(135deg, #059669, #10b981);
+        border: 1.5px solid transparent;
+        color: #ffffff;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+    }
+    .btn-sidebar-pdf:hover {
+        background: linear-gradient(135deg, #047857, #059669);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    }
+
     .word-document-content {
         min-width: 0;
     }
@@ -1583,12 +1619,18 @@
 
         <div class="word-nav-footer">
             <div class="word-nav-footer-badge">
-                Tahun Pelajaran 2026/2027
+                Tahun Pelajaran {{ $student->academic_year ?: '2026/2027' }}
             </div>
-            <a href="{{ route('students.print', $student->id) }}" target="_blank" class="word-nav-item" style="background:#f8fafc;border:1.5px solid #e2e8f0;justify-content:center;font-weight:700;font-size:0.8rem;color:#1e40af;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Cetak 5 Lembar A4
-            </a>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">
+                <a href="{{ route('students.print', $student->id) }}" target="_blank" class="btn-sidebar-print" title="Buka lembar cetak fisik 5 halaman A4">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    Cetak 5 Lembar A4
+                </a>
+                <a href="{{ route('students.print', $student->id) }}" target="_blank" class="btn-sidebar-pdf" title="Buka dan unduh dokumen berkas format PDF">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Download PDF
+                </a>
+            </div>
         </div>
     </aside>
 
@@ -1603,9 +1645,13 @@
             <p style="font-size:0.85rem;color:var(--slate-500);margin-top:0.2rem;">Format presisi berkas fisik map siswa dengan pemilih jurusan & angkatan terintegrasi.</p>
         </div>
         <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
-            <a href="{{ route('students.print', $student->id) }}" target="_blank" class="btn-pill btn-pill-primary">
+            <a href="{{ route('students.print', $student->id) }}" target="_blank" class="btn-pill btn-pill-secondary">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Cetak Cover A4
+                Cetak Lembar A4
+            </a>
+            <a href="{{ route('students.print', $student->id) }}" target="_blank" class="btn-pill btn-pill-primary">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download PDF
             </a>
         </div>
     </div>
