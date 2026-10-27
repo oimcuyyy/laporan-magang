@@ -94,7 +94,7 @@ class LaporanMagangTest extends TestCase
             'aspect_a_score' => 95,
             'aspect_b_score' => 92,
             'aspect_c_score' => 96,
-            'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+            'evaluation_date' => 'Jakarta, 30 November 2026',
             'mentor_name' => 'Pembimbing Lapangan',
         ]);
         $responseEval->assertRedirect();

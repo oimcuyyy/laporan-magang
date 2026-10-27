@@ -2507,7 +2507,7 @@
             <!-- Tanggal & Tanda Tangan Pembimbing Industri -->
             <div style="text-align:center;background:#ffffff;border:1.5px solid #e2e8f0;border-radius:18px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.02);">
                 <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-bottom:1rem;">
-                    <input type="text" name="evaluation_date" class="form-control" style="width:230px;text-align:center;" value="{{ old('evaluation_date', $eval->evaluation_date ?? 'Jakarta, 31 Oktober 2026') }}" required>
+                    <input type="text" name="evaluation_date" class="form-control" style="width:230px;text-align:center;" value="{{ old('evaluation_date', $eval->evaluation_date ?? 'Jakarta, 30 November 2026') }}" required>
                 </div>
                 <span style="font-weight:600;font-size:0.9rem;color:var(--slate-700);">Pembimbing Dunia Industri</span>
                 <div style="height:70px;"></div>

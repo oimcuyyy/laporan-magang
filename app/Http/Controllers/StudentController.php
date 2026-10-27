@@ -121,7 +121,7 @@ class StudentController extends Controller
         // Pastikan siswa memiliki record evaluasi
         if (! $student->evaluation) {
             $student->evaluation()->create([
-                'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+                'evaluation_date' => 'Jakarta, 30 November 2026',
                 'mentor_name' => $student->mentor_name ?: 'Pembimbing Industri',
             ]);
             $student->load('evaluation');
@@ -227,7 +227,7 @@ class StudentController extends Controller
 
             // Inisialisasi Lembar Penilaian DU/DI
             $student->evaluation()->create([
-                'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+                'evaluation_date' => 'Jakarta, 30 November 2026',
                 'mentor_name' => $student->mentor_name ?: 'Pembimbing Industri',
             ]);
 
@@ -401,7 +401,7 @@ class StudentController extends Controller
 
             // Inisialisasi evaluasi
             $newStudent->evaluation()->create([
-                'evaluation_date' => 'Jakarta, 31 Oktober '.explode('/', $newYear)[0],
+                'evaluation_date' => 'Jakarta, 30 November '.explode('/', $newYear)[0],
                 'mentor_name' => $newStudent->mentor_name ?: 'Pembimbing Industri',
             ]);
 

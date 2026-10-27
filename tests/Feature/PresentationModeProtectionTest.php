@@ -50,7 +50,7 @@ class PresentationModeProtectionTest extends TestCase
             'aspect_a_score' => 96,
             'aspect_b_score' => 94,
             'aspect_c_score' => 98,
-            'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+            'evaluation_date' => 'Jakarta, 30 November 2026',
             'mentor_name' => 'Pembimbing Industri',
         ]);
 
@@ -74,7 +74,7 @@ class PresentationModeProtectionTest extends TestCase
                 'aspect_a_score' => 999,
                 'aspect_b_score' => -10,
                 'aspect_c_score' => 80,
-                'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+                'evaluation_date' => 'Jakarta, 30 November 2026',
             ]);
 
         $responseInvalid->assertSessionHasErrors(['aspect_a_score', 'aspect_b_score']);
