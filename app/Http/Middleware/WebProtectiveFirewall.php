@@ -116,7 +116,7 @@ class WebProtectiveFirewall
     /**
      * Render response khusus ketika terdeteksi pengubahan / manipulasi tautan atau parameter URL
      */
-    public static function renderTamperedUrlResponse(Request $request, string $detailReason = 'Tautan atau parameter pada URL telah diubah-ubah secara tidak sah.'): Response
+    public static function renderTamperedUrlResponse(Request $request, string $detailReason = 'Tautan atau parameter pada URL telah diubah-ubah secara tidak sah.', ?string $customUrl = null): Response
     {
         $responseData = [
             'success' => false,
@@ -141,7 +141,7 @@ class WebProtectiveFirewall
         $escapedDetail = htmlspecialchars($detailReason, ENT_QUOTES, 'UTF-8');
         $escapedIp = htmlspecialchars($request->ip() ?: 'Unknown', ENT_QUOTES, 'UTF-8');
         $escapedTimestamp = htmlspecialchars($responseData['timestamp'], ENT_QUOTES, 'UTF-8');
-        $escapedUrl = htmlspecialchars($request->fullUrl(), ENT_QUOTES, 'UTF-8');
+        $escapedUrl = htmlspecialchars($customUrl ?: $request->fullUrl(), ENT_QUOTES, 'UTF-8');
 
         $html = <<<HTML
 <!DOCTYPE html>
@@ -178,7 +178,7 @@ class WebProtectiveFirewall
         <p class="subtitle">Manipulasi Link / Parameter URL Terdeteksi</p>
         
         <div class="warning-banner">
-            ⚠️ PERINGATAN: (Jangan mengubah-ubah di web ini)
+            PERINGATAN: (Jangan mengubah-ubah di web ini)
         </div>
 
         <div class="reason-box">

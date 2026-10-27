@@ -153,4 +153,14 @@ class PresentationModeProtectionTest extends TestCase
         $responseAttack->assertStatus(401);
         $responseAttack->assertSee('Jangan mengubah-ubah di web ini', false);
     }
+
+    public function test_tampered_url_endpoint_returns_401_with_tampered_details(): void
+    {
+        $response = $this->get('/tampered-url?url=' . urlencode('http://localhost/students/1?tab=uraian#page-3-uraian/lock#wkwk') . '&detail=' . urlencode('Bagian akhir tautan link (#page-3-uraian/lock#wkwk) dimanipulasi'));
+
+        $response->assertStatus(401);
+        $response->assertSee('401 Akses Ditolak');
+        $response->assertSee('Jangan mengubah-ubah di web ini', false);
+        $response->assertSee('Bagian akhir tautan link (#page-3-uraian/lock#wkwk) dimanipulasi');
+    }
 }

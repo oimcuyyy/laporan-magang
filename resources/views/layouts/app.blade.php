@@ -6,6 +6,52 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Laporan Magang - SMK Negeri 20 Jakarta')</title>
     
+    <!-- Immediate URL Integrity & Tampering Shield (Intercept illegal trailing links / anchors to 401) -->
+    <script>
+        (function() {
+            function checkTrailingUrlTampering() {
+                var hash = window.location.hash;
+                if (!hash) return;
+
+                var pathname = window.location.pathname;
+                // Hanya izinkan anchor pada halaman detail berkas siswa: /students/{id}
+                var isStudentDetail = /\/students\/\d+$/.test(pathname);
+                var isAllowed = false;
+
+                if (isStudentDetail) {
+                    var allowedPageAnchors = [
+                        '#page-1-cover',
+                        '#page-2-identitas',
+                        '#page-3-uraian',
+                        '#page-4-presensi',
+                        '#page-5-penilaian'
+                    ];
+                    // Harus persis sama dengan salah satu anchor resmi (tidak boleh ada imbuhan /lock, #wkwk, path liar, dll.)
+                    if (allowedPageAnchors.indexOf(hash) !== -1) {
+                        isAllowed = true;
+                    }
+                }
+
+                // Deteksi tambahan jika ada karakter manipulasi berbahaya (multiple hash, slash di dalam hash, kurung, kutip, dll.)
+                if (hash.indexOf('/', 1) !== -1 || (hash.match(/#/g) || []).length > 1 || /[\<\>'"\(\)\{\};]/.test(hash)) {
+                    isAllowed = false;
+                }
+
+                if (!isAllowed) {
+                    if (document.documentElement) {
+                        document.documentElement.style.display = 'none';
+                    }
+                    var fullUrl = window.location.href;
+                    var detail = 'Bagian akhir tautan link (' + hash + ') telah diubah atau dimanipulasi secara tidak sah.';
+                    window.location.replace('/tampered-url?url=' + encodeURIComponent(fullUrl) + '&detail=' + encodeURIComponent(detail));
+                }
+            }
+
+            checkTrailingUrlTampering();
+            window.addEventListener('hashchange', checkTrailingUrlTampering);
+        })();
+    </script>
+    
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Berkas Laporan Magang - {{ $student->name }} (SMK Negeri 20 Jakarta)</title>
+    <!-- Immediate URL Integrity & Tampering Shield -->
+    <script>
+        (function() {
+            function checkPrintUrlTampering() {
+                var hash = window.location.hash;
+                if (hash) {
+                    if (document.documentElement) document.documentElement.style.display = 'none';
+                    var fullUrl = window.location.href;
+                    var detail = 'Tautan cetak berkas tidak mengizinkan penambahan anchor/hash (' + hash + ').';
+                    window.location.replace('/tampered-url?url=' + encodeURIComponent(fullUrl) + '&detail=' + encodeURIComponent(detail));
+                }
+            }
+            checkPrintUrlTampering();
+            window.addEventListener('hashchange', checkPrintUrlTampering);
+        })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * {

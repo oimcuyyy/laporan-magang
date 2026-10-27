@@ -17,6 +17,16 @@ Route::get('students', [StudentController::class, 'index'])->name('students.inde
 Route::get('students/create', [StudentController::class, 'create'])->name('students.create');
 Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
 Route::get('students/{student}/print', [StudentController::class, 'printReport'])->name('students.print');
+Route::get('tampered-url', function (\Illuminate\Http\Request $request) {
+    $detail = $request->query('detail', 'Terdeteksi manipulasi pada tautan atau bagian akhir link URL.');
+    $url = $request->query('url', $request->fullUrl());
+
+    return \App\Http\Middleware\WebProtectiveFirewall::renderTamperedUrlResponse(
+        $request,
+        $detail,
+        $url
+    );
+})->name('security.tampered');
 
 // Rute Mutasi Data Laporan Magang (Diproteksi CSRF, Validasi Ketat Server-Side, & Anti-Flood Throttling)
 Route::middleware(['throttle:60,1'])->group(function () {
