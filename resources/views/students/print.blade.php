@@ -23,8 +23,8 @@
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -56,10 +56,10 @@
         }
 
         .btn-print {
-            background: #2563eb;
+            background: #1e293b;
             color: #ffffff;
-            border: none;
-            padding: 8px 18px;
+            border: 1px solid #334155;
+            padding: 8px 16px;
             font-weight: 700;
             border-radius: 12px;
             cursor: pointer;
@@ -68,19 +68,31 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+            box-shadow: 0 2px 8px rgba(30, 41, 59, 0.2);
         }
 
         .btn-print:hover {
-            background: #1d4ed8;
+            background: #0f172a;
+            border-color: #475569;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-badge-print {
+            background: rgba(255, 255, 255, 0.15);
+            color: #94a3b8;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .btn-download {
             background: #059669;
             color: #ffffff;
-            border: none;
+            border: 1px solid #047857;
             padding: 8px 18px;
             font-weight: 700;
             border-radius: 12px;
@@ -90,19 +102,30 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+            box-shadow: 0 2px 10px rgba(5, 150, 105, 0.3);
         }
 
         .btn-download:hover {
             background: #047857;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
         }
 
         .btn-download:disabled {
             opacity: 0.7;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn-badge-download {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .btn-close {
@@ -455,13 +478,15 @@
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
             Kembali ke Web
         </a>
-        <button type="button" onclick="window.print()" class="btn-print" title="Buka dialog cetak browser (bisa Simpan sebagai PDF)">
+        <button type="button" onclick="window.print()" class="btn-print" title="Buka dialog cetak printer fisik atau Simpan PDF lewat browser">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Cetak Dokumen
+            <span>Cetak Dokumen</span>
+            <span class="btn-badge-print">Printer</span>
         </button>
-        <button type="button" id="btnDownloadPdf" onclick="handleDownloadPdfDirectly()" class="btn-download" title="Unduh langsung file PDF 5 lembar">
+        <button type="button" id="btnDownloadPdf" onclick="handleDownloadPdfDirectly()" class="btn-download" title="Unduh langsung file berkas PDF ke perangkat tanpa dialog printer">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span id="btnDownloadPdfText">Download PDF</span>
+            <span id="btnDownloadPdfText">Unduh File PDF</span>
+            <span class="btn-badge-download">.PDF</span>
         </button>
     </div>
 
@@ -927,18 +952,47 @@
     </div> <!-- /#printDocumentWrapper -->
 
     <script>
+        async function getPdfEngine() {
+            const check = () => {
+                const jsPdfClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+                const h2c = window.html2canvas;
+                if (jsPdfClass && typeof h2c !== 'undefined') {
+                    return { jsPdfClass, h2c };
+                }
+                return null;
+            };
+
+            let engine = check();
+            if (engine) return engine;
+
+            // Wait up to 5 seconds for scripts to finish initializing
+            for (let i = 0; i < 25; i++) {
+                await new Promise(r => setTimeout(r, 200));
+                engine = check();
+                if (engine) return engine;
+            }
+            return null;
+        }
+
         async function handleDownloadPdfDirectly() {
             const btn = document.getElementById('btnDownloadPdf');
             const btnText = document.getElementById('btnDownloadPdfText');
-            
-            const jsPdfConstructor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
-            if (!jsPdfConstructor || typeof html2canvas === 'undefined') {
-                window.print();
-                return;
-            }
 
             btn.disabled = true;
-            btnText.textContent = 'Menyiapkan PDF...';
+            btnText.textContent = 'Menyiapkan...';
+
+            const engine = await getPdfEngine();
+            if (!engine) {
+                btn.disabled = false;
+                btnText.textContent = 'Unduh File PDF';
+                
+                const errToast = document.createElement('div');
+                errToast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#b91c1c;color:#ffffff;padding:12px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.25);z-index:9999;display:flex;align-items:center;gap:10px;';
+                errToast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Pustaka PDF belum siap. Mohon tunggu beberapa detik lalu klik unduh kembali.';
+                document.body.appendChild(errToast);
+                setTimeout(() => errToast.remove(), 4000);
+                return;
+            }
 
             // Floating progress toast
             const toast = document.createElement('div');
@@ -952,11 +1006,13 @@
                 const totalPages = pages.length;
 
                 if (totalPages === 0) {
-                    window.print();
+                    toast.remove();
+                    btn.disabled = false;
+                    btnText.textContent = 'Unduh File PDF';
                     return;
                 }
 
-                const pdf = new jsPdfConstructor({
+                const pdf = new engine.jsPdfClass({
                     orientation: 'portrait',
                     unit: 'mm',
                     format: 'a4',
@@ -968,7 +1024,7 @@
                 for (let i = 0; i < totalPages; i++) {
                     const pageEl = pages[i];
                     if (toastText) {
-                        toastText.textContent = `Merender halaman ${i + 1} dari ${totalPages}...`;
+                        toastText.textContent = `Memproses halaman ${i + 1} dari ${totalPages}...`;
                     }
 
                     // Suppress margins & box-shadow on the element during capture to guarantee exact bounds
@@ -977,18 +1033,33 @@
                     pageEl.style.boxShadow = 'none';
                     pageEl.style.margin = '0 auto';
 
-                    const canvas = await html2canvas(pageEl, {
-                        scale: 2,
-                        useCORS: true,
-                        backgroundColor: '#ffffff',
-                        logging: false
-                    });
+                    let canvas;
+                    try {
+                        canvas = await engine.h2c(pageEl, {
+                            scale: 2,
+                            useCORS: true,
+                            backgroundColor: '#ffffff',
+                            logging: false
+                        });
+                    } catch (cErr) {
+                        canvas = await engine.h2c(pageEl, {
+                            scale: 2,
+                            useCORS: false,
+                            backgroundColor: '#ffffff',
+                            logging: false
+                        });
+                    }
 
                     // Restore original screen styling
                     pageEl.style.boxShadow = origShadow;
                     pageEl.style.margin = origMargin;
 
-                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+                    let imgData;
+                    try {
+                        imgData = canvas.toDataURL('image/jpeg', 0.96);
+                    } catch (taintErr) {
+                        imgData = canvas.toDataURL();
+                    }
 
                     if (i > 0) {
                         pdf.addPage('a4', 'portrait');
@@ -999,17 +1070,39 @@
                 }
 
                 const studentNameSlug = "{{ \Illuminate\Support\Str::slug($student->name) ?: 'siswa' }}";
-                pdf.save(`Laporan_Magang_${studentNameSlug}.pdf`);
+                const filename = `Laporan_Magang_${studentNameSlug}.pdf`;
 
-                toast.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Berhasil mendownload PDF (${totalPages} halaman siap print)!`;
+                // Trigger direct file download
+                try {
+                    const blob = pdf.output('blob');
+                    const blobUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    setTimeout(() => {
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(blobUrl);
+                    }, 2500);
+                } catch (saveErr) {
+                    pdf.save(filename);
+                }
+
+                toast.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Berhasil mendownload berkas PDF (${totalPages} halaman)!`;
                 setTimeout(() => toast.remove(), 3500);
             } catch (err) {
                 console.error('Gagal generate PDF:', err);
                 if (toast) toast.remove();
-                window.print();
+
+                const errToast = document.createElement('div');
+                errToast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#b91c1c;color:#ffffff;padding:12px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.25);z-index:9999;display:flex;align-items:center;gap:10px;';
+                errToast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span>Gagal mengunduh file PDF (' + (err.message || 'Error perenderan') + '). Gunakan tombol Cetak Dokumen jika ingin mencetak.</span>';
+                document.body.appendChild(errToast);
+                setTimeout(() => errToast.remove(), 5000);
             } finally {
                 btn.disabled = false;
-                btnText.textContent = 'Download PDF';
+                btnText.textContent = 'Unduh File PDF';
             }
         }
     </script>
