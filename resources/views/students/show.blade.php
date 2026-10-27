@@ -1238,6 +1238,13 @@
 @endpush
 
 @section('content')
+@php
+    $bulanIndo = [
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $todayIndo = now()->format('j') . ' ' . ($bulanIndo[(int) now()->format('n')] ?? now()->format('F')) . ' ' . now()->format('Y');
+@endphp
 <!-- Switcher Antar Siswa (1 sampai 5 Siswa) -->
 <div class="student-switcher-bar">
     <div class="switcher-label">
@@ -1971,7 +1978,7 @@
 
                 <!-- Tanda Tangan Resmi Sesuai Foto 2 -->
                 <div style="text-align:center;min-width:240px;">
-                    <div style="font-size:0.95rem;margin-bottom:0.25rem;">Jakarta, 26 Oktober 2026</div>
+                    <div style="font-size:0.95rem;margin-bottom:0.25rem;">Jakarta, {{ $todayIndo }}</div>
                     <div style="font-size:0.95rem;font-weight:600;">Peserta Praktik,</div>
                     <div style="height:70px;"></div>
                     <div style="font-weight:700;font-size:1rem;border-bottom:1px solid #000000;display:inline-block;padding:0 1rem;">

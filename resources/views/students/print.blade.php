@@ -271,6 +271,13 @@
     </style>
 </head>
 <body>
+@php
+    $bulanIndo = [
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $todayIndo = now()->format('j') . ' ' . ($bulanIndo[(int) now()->format('n')] ?? now()->format('F')) . ' ' . now()->format('Y');
+@endphp
     <!-- Floating Toolbar -->
     <div class="print-toolbar">
         <a href="{{ route('students.show', $student->id) }}" class="btn-close">&larr; Kembali ke Web</a>
@@ -461,7 +468,7 @@
             </div>
 
             <div style="text-align:center;min-width:180px;">
-                <p>Jakarta, ........................................</p>
+                <p>Jakarta, {{ $todayIndo }}</p>
                 <div style="height:22mm;"></div>
                 <p style="border-top:1px solid #000000;display:inline-block;padding-top:2px;min-width:160px;">
                     ( {{ $student->name }} )
@@ -713,7 +720,7 @@
             </div>
 
             <div style="text-align:center;min-width:200px;font-size:9.5pt;">
-                <p>{{ $eval->evaluation_date ?: 'Jakarta, ........................................' }}</p>
+                <p>{{ $eval->evaluation_date ?: ('Jakarta, ' . $todayIndo) }}</p>
                 <p style="margin-top:2px;">Pembimbing Dunia Industri</p>
                 <div style="height:20mm;"></div>
                 <p style="border-top:1px dotted #000000;display:inline-block;padding-top:2px;min-width:170px;font-weight:700;">
