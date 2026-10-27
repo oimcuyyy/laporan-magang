@@ -23,7 +23,8 @@
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -471,17 +472,19 @@
     <!-- ==================================================== -->
     <div class="page-a4">
         <div class="cover-page">
-            <!-- Corner SVG Graphics -->
+            <!-- Corner SVG Graphics (Pure Polygons for 100% Canvas & PDF Fidelity) -->
             <svg class="cover-top-corner" viewBox="0 0 100 100">
-                <path d="M0,0 L70,0 L0,70 Z" fill="#2563eb" opacity="0.2"/>
-                <path d="M0,0 L45,0 L0,45 Z" fill="#1d4ed8" opacity="0.4"/>
-                <rect x="15" y="-10" width="12" height="55" rx="6" transform="rotate(45 15 -10)" fill="#3b82f6"/>
+                <polygon points="0,0 75,0 0,75" fill="#2563eb" opacity="0.20"/>
+                <polygon points="0,0 50,0 0,50" fill="#1d4ed8" opacity="0.38"/>
+                <polygon points="12,0 26,0 0,26 0,12" fill="#3b82f6" opacity="0.85"/>
+                <polygon points="30,0 40,0 0,40 0,30" fill="#2563eb" opacity="0.75"/>
             </svg>
 
             <svg class="cover-bottom-corner" viewBox="0 0 100 100">
-                <path d="M100,100 L30,100 L100,30 Z" fill="#1e3a8a" opacity="0.2"/>
-                <rect x="65" y="45" width="28" height="40" rx="8" fill="#2563eb" opacity="0.9"/>
-                <rect x="55" y="60" width="30" height="35" rx="8" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+                <polygon points="100,100 25,100 100,25" fill="#1e3a8a" opacity="0.20"/>
+                <polygon points="100,100 50,100 100,50" fill="#2563eb" opacity="0.38"/>
+                <polygon points="88,100 74,100 100,74 100,88" fill="#3b82f6" opacity="0.85"/>
+                <polygon points="70,100 60,100 100,60 100,70" fill="#1d4ed8" opacity="0.75"/>
             </svg>
 
             <!-- 1. Bagian Atas: Logo & Judul Utama -->
@@ -928,7 +931,8 @@
             const btn = document.getElementById('btnDownloadPdf');
             const btnText = document.getElementById('btnDownloadPdfText');
             
-            if (typeof html2pdf === 'undefined') {
+            const jsPdfConstructor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+            if (!jsPdfConstructor || typeof html2canvas === 'undefined') {
                 window.print();
                 return;
             }
@@ -940,28 +944,68 @@
             const toast = document.createElement('div');
             toast.id = 'pdfToast';
             toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:12px 20px;border-radius:12px;font-size:0.88rem;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.2);z-index:9999;display:flex;align-items:center;gap:10px;';
-            toast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="spin-icon"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> Sedang merender 5 lembar A4 ke file PDF...';
+            toast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="spin-icon"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/></svg> <span id="pdfToastText">Menyiapkan lembar dokumen...</span>';
             document.body.appendChild(toast);
 
             try {
-                const element = document.getElementById('printDocumentWrapper');
+                const pages = document.querySelectorAll('.page-a4');
+                const totalPages = pages.length;
+
+                if (totalPages === 0) {
+                    window.print();
+                    return;
+                }
+
+                const pdf = new jsPdfConstructor({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
+
+                const toastText = document.getElementById('pdfToastText');
+
+                for (let i = 0; i < totalPages; i++) {
+                    const pageEl = pages[i];
+                    if (toastText) {
+                        toastText.textContent = `Merender halaman ${i + 1} dari ${totalPages}...`;
+                    }
+
+                    // Suppress margins & box-shadow on the element during capture to guarantee exact bounds
+                    const origShadow = pageEl.style.boxShadow;
+                    const origMargin = pageEl.style.margin;
+                    pageEl.style.boxShadow = 'none';
+                    pageEl.style.margin = '0 auto';
+
+                    const canvas = await html2canvas(pageEl, {
+                        scale: 2,
+                        useCORS: true,
+                        backgroundColor: '#ffffff',
+                        logging: false
+                    });
+
+                    // Restore original screen styling
+                    pageEl.style.boxShadow = origShadow;
+                    pageEl.style.margin = origMargin;
+
+                    const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+                    if (i > 0) {
+                        pdf.addPage('a4', 'portrait');
+                    }
+
+                    // Fill 100% of the A4 page (210mm x 297mm)
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+                }
+
                 const studentNameSlug = "{{ \Illuminate\Support\Str::slug($student->name) ?: 'siswa' }}";
-                const opt = {
-                    margin: 0,
-                    filename: `Laporan_Magang_${studentNameSlug}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true, logging: false },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                    pagebreak: { mode: ['css', 'legacy'] }
-                };
+                pdf.save(`Laporan_Magang_${studentNameSlug}.pdf`);
 
-                await html2pdf().set(opt).from(element).save();
-
-                toast.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Berhasil mendownload berkas PDF!';
+                toast.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Berhasil mendownload PDF (${totalPages} halaman siap print)!`;
                 setTimeout(() => toast.remove(), 3500);
             } catch (err) {
-                console.error('Gagal generate html2pdf:', err);
-                toast.remove();
+                console.error('Gagal generate PDF:', err);
+                if (toast) toast.remove();
                 window.print();
             } finally {
                 btn.disabled = false;
