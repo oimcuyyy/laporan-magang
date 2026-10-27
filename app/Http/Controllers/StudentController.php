@@ -23,14 +23,10 @@ class StudentController extends Controller
     {
         // Tolak jika ada parameter tautan URL liar / mencurigakan
         if (! empty($request->query())) {
-            $allowedParams = ['page', 'search'];
-            $extraParams = array_diff(array_keys($request->query()), $allowedParams);
-            if (! empty($extraParams)) {
-                return WebProtectiveFirewall::renderTamperedUrlResponse(
-                    $request,
-                    'Terdeteksi parameter liar pada link halaman utama ('.implode(', ', array_map('htmlspecialchars', $extraParams)).').'
-                );
-            }
+            return WebProtectiveFirewall::renderTamperedUrlResponse(
+                $request,
+                'Terdeteksi parameter liar pada tautan halaman utama rekapitulasi.'
+            );
         }
 
         $students = Student::with(['activitySheets.activityLogs', 'attendanceSheets', 'evaluation'])

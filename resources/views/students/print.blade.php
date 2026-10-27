@@ -9,15 +9,17 @@
         (function() {
             function checkPrintUrlTampering() {
                 var hash = window.location.hash;
-                if (hash) {
+                var search = window.location.search;
+                if (hash || search) {
                     if (document.documentElement) document.documentElement.style.display = 'none';
                     var fullUrl = window.location.href;
-                    var detail = 'Tautan cetak berkas tidak mengizinkan penambahan anchor/hash (' + hash + ').';
+                    var detail = 'Tautan cetak berkas fisik tidak mengizinkan penambahan parameter atau anchor apapun.';
                     window.location.replace('/tampered-url?url=' + encodeURIComponent(fullUrl) + '&detail=' + encodeURIComponent(detail));
                 }
             }
             checkPrintUrlTampering();
             window.addEventListener('hashchange', checkPrintUrlTampering);
+            window.addEventListener('popstate', checkPrintUrlTampering);
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">

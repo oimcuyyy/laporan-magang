@@ -6,49 +6,88 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Laporan Magang - SMK Negeri 20 Jakarta')</title>
     
-    <!-- Immediate URL Integrity & Tampering Shield (Intercept illegal trailing links / anchors to 401) -->
+    <!-- Comprehensive Universal URL Integrity & Tampering Shield (All Pages, Queries, & Hashes) -->
     <script>
         (function() {
-            function checkTrailingUrlTampering() {
+            function enforceUniversalUrlIntegrity() {
+                var path = window.location.pathname;
+                
+                // Jangan periksa jika sudah berada di halaman blokir 401
+                if (path === '/tampered-url') return;
+
+                var search = window.location.search;
                 var hash = window.location.hash;
-                if (!hash) return;
+                var isTampered = false;
+                var reason = '';
 
-                var pathname = window.location.pathname;
-                // Hanya izinkan anchor pada halaman detail berkas siswa: /students/{id}
-                var isStudentDetail = /\/students\/\d+$/.test(pathname);
-                var isAllowed = false;
+                // 1. Validasi Hash / Anchor di semua halaman
+                if (hash) {
+                    var isStudentDetail = /\/students\/\d+$/.test(path);
+                    if (isStudentDetail) {
+                        var allowedPageAnchors = [
+                            '#page-1-cover',
+                            '#page-2-identitas',
+                            '#page-3-uraian',
+                            '#page-4-presensi',
+                            '#page-5-penilaian'
+                        ];
+                        if (allowedPageAnchors.indexOf(hash) === -1) {
+                            isTampered = true;
+                            reason = 'Bagian akhir tautan (' + hash + ') tidak sah atau dimanipulasi.';
+                        }
+                    } else {
+                        // Di halaman selain detail siswa (/students, /students/create, dll.) tidak boleh ada hash
+                        isTampered = true;
+                        reason = 'Halaman ini tidak mengizinkan penambahan anchor atau tautan akhir (' + hash + ').';
+                    }
 
-                if (isStudentDetail) {
-                    var allowedPageAnchors = [
-                        '#page-1-cover',
-                        '#page-2-identitas',
-                        '#page-3-uraian',
-                        '#page-4-presensi',
-                        '#page-5-penilaian'
-                    ];
-                    // Harus persis sama dengan salah satu anchor resmi (tidak boleh ada imbuhan /lock, #wkwk, path liar, dll.)
-                    if (allowedPageAnchors.indexOf(hash) !== -1) {
-                        isAllowed = true;
+                    // Deteksi karakter aneh / injeksi pada hash
+                    if (hash.indexOf('/', 1) !== -1 || (hash.match(/#/g) || []).length > 1 || /[\<\>'"\(\)\{\};]/.test(hash)) {
+                        isTampered = true;
+                        reason = 'Terdeteksi karakter manipulasi tidak sah pada tautan akhir (' + hash + ').';
                     }
                 }
 
-                // Deteksi tambahan jika ada karakter manipulasi berbahaya (multiple hash, slash di dalam hash, kurung, kutip, dll.)
-                if (hash.indexOf('/', 1) !== -1 || (hash.match(/#/g) || []).length > 1 || /[\<\>'"\(\)\{\};]/.test(hash)) {
-                    isAllowed = false;
+                // 2. Validasi Query Parameter (?key=val) di semua halaman
+                if (!isTampered && search) {
+                    var isStudentDetail = /\/students\/\d+$/.test(path);
+                    var params = new URLSearchParams(search);
+
+                    if (isStudentDetail) {
+                        var allowedKeys = ['tab', 'sheet'];
+                        var allowedTabs = ['cover', 'identitas', 'uraian', 'presensi', 'penilaian'];
+
+                        params.forEach(function(val, key) {
+                            if (allowedKeys.indexOf(key) === -1) {
+                                isTampered = true;
+                                reason = 'Parameter query ("' + key + '") tidak diizinkan pada halaman berkas siswa.';
+                            } else if (key === 'tab' && allowedTabs.indexOf(val) === -1) {
+                                isTampered = true;
+                                reason = 'Nilai tab ("' + val + '") telah diubah ke nilai yang tidak sah.';
+                            } else if (key === 'sheet' && (!/^\d+$/.test(val) || parseInt(val, 10) <= 0)) {
+                                isTampered = true;
+                                reason = 'Nilai sheet ("' + val + '") tidak valid.';
+                            }
+                        });
+                    } else {
+                        // Di halaman /students, /students/create, dll. tidak boleh ada query parameter apapun
+                        isTampered = true;
+                        reason = 'Tautan halaman ini telah disisipi parameter query yang tidak sah.';
+                    }
                 }
 
-                if (!isAllowed) {
+                if (isTampered) {
                     if (document.documentElement) {
                         document.documentElement.style.display = 'none';
                     }
                     var fullUrl = window.location.href;
-                    var detail = 'Bagian akhir tautan link (' + hash + ') telah diubah atau dimanipulasi secara tidak sah.';
-                    window.location.replace('/tampered-url?url=' + encodeURIComponent(fullUrl) + '&detail=' + encodeURIComponent(detail));
+                    window.location.replace('/tampered-url?url=' + encodeURIComponent(fullUrl) + '&detail=' + encodeURIComponent(reason));
                 }
             }
 
-            checkTrailingUrlTampering();
-            window.addEventListener('hashchange', checkTrailingUrlTampering);
+            enforceUniversalUrlIntegrity();
+            window.addEventListener('hashchange', enforceUniversalUrlIntegrity);
+            window.addEventListener('popstate', enforceUniversalUrlIntegrity);
         })();
     </script>
     
