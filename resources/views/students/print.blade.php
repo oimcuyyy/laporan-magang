@@ -85,6 +85,7 @@
         /* Lembar A4 Fisik */
         .page-a4 {
             width: 210mm;
+            height: 297mm;
             min-height: 297mm;
             max-height: 297mm;
             padding: 16mm 18mm 16mm 22mm;
@@ -137,28 +138,34 @@
             flex-direction: column;
             justify-content: space-between;
             height: 100%;
-            max-height: 265mm;
+            min-height: 100%;
             position: relative;
             box-sizing: border-box;
             padding-bottom: 2mm;
+        }
+
+        .cover-top-section {
+            width: 100%;
         }
 
         .cover-top-corner {
             position: absolute;
             top: -12mm;
             left: -15mm;
-            width: 130px;
-            height: 130px;
+            width: 140px;
+            height: 140px;
             pointer-events: none;
+            z-index: 1;
         }
 
         .cover-bottom-corner {
             position: absolute;
-            bottom: -10mm;
-            right: -12mm;
-            width: 140px;
-            height: 140px;
+            bottom: -8mm;
+            right: -10mm;
+            width: 155px;
+            height: 155px;
             pointer-events: none;
+            z-index: 1;
         }
 
         .cover-logos-row {
@@ -166,15 +173,19 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 10px;
+            position: relative;
+            z-index: 2;
         }
 
         .cover-main-titles {
             text-align: center;
-            margin-top: 5mm;
+            margin-top: 8mm;
+            position: relative;
+            z-index: 2;
         }
 
         .cover-main-titles h1 {
-            font-size: 26pt;
+            font-size: 29pt;
             font-weight: 900;
             color: #1e3a8a;
             letter-spacing: 2px;
@@ -182,50 +193,62 @@
         }
 
         .cover-main-titles h2 {
-            font-size: 16pt;
+            font-size: 17.5pt;
             font-weight: 900;
             color: #e11d48;
             letter-spacing: 1px;
-            margin-top: 4px;
-            margin-bottom: 12px;
+            margin-top: 5px;
+            margin-bottom: 16px;
         }
 
         .cover-school-text {
-            font-size: 15pt;
+            font-size: 16.5pt;
             font-weight: 900;
             color: #0f172a;
             letter-spacing: 1px;
         }
 
         .cover-academic-year {
-            font-size: 13pt;
+            font-size: 14.5pt;
             font-weight: 900;
             color: #0f172a;
-            margin-top: 3px;
+            margin-top: 4px;
+        }
+
+        .cover-middle-section {
+            width: 100%;
+            margin: auto 0;
+            position: relative;
+            z-index: 2;
         }
 
         .cover-field-text {
             text-align: right;
-            margin-top: 6mm;
             padding-right: 5mm;
         }
 
         .cover-field-text div {
-            font-size: 12.5pt;
+            font-size: 13.5pt;
             font-weight: 900;
             color: #e11d48;
             line-height: 1.25;
         }
 
-        .cover-student-table {
-            margin-top: 6mm;
+        .cover-bottom-section {
             width: 100%;
-            font-size: 11pt;
+            margin-top: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cover-student-table {
+            width: 100%;
+            font-size: 11.5pt;
             font-weight: 600;
         }
 
         .cover-student-table td {
-            padding: 4px 6px;
+            padding: 4.5px 6px;
         }
 
         .dotted-line {
@@ -395,49 +418,54 @@
                 <rect x="55" y="60" width="30" height="35" rx="8" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
             </svg>
 
-            <!-- Logo Header -->
-            <div class="cover-logos-row">
-                <img src="{{ asset('images/logo-jayaraya.png') }}" alt="Logo Jaya Raya DKI Jakarta" style="height:85px;width:auto;max-width:85px;object-fit:contain;">
-                <img src="{{ asset('images/logo-smkn20.png') }}" alt="Logo SMK Negeri 20 Jakarta" style="height:85px;width:auto;max-width:85px;object-fit:contain;">
+            <!-- 1. Bagian Atas: Logo & Judul Utama -->
+            <div class="cover-top-section">
+                <div class="cover-logos-row">
+                    <img src="{{ asset('images/logo-jayaraya.png') }}" alt="Logo Jaya Raya DKI Jakarta" style="height:85px;width:auto;max-width:85px;object-fit:contain;">
+                    <img src="{{ asset('images/logo-smkn20.png') }}" alt="Logo SMK Negeri 20 Jakarta" style="height:85px;width:auto;max-width:85px;object-fit:contain;">
+                </div>
+
+                <div class="cover-main-titles">
+                    <h1>LAPORAN</h1>
+                    <h2>KEGIATAN KELAS INDUSTRI</h2>
+                    <div class="cover-school-text">{{ strtoupper($student->school_name) }}</div>
+                    <div class="cover-academic-year">TAHUN PELAJARAN {{ $student->academic_year ?: '2026/2027' }}</div>
+                </div>
             </div>
 
-            <!-- Judul Utama -->
-            <div class="cover-main-titles">
-                <h1>LAPORAN</h1>
-                <h2>KEGIATAN KELAS INDUSTRI</h2>
-                <div class="cover-school-text">{{ strtoupper($student->school_name) }}</div>
-                <div class="cover-academic-year">TAHUN PELAJARAN {{ $student->academic_year ?: '2026/2027' }}</div>
+            <!-- 2. Bagian Tengah: Bidang Keahlian -->
+            <div class="cover-middle-section">
+                <div class="cover-field-text">
+                    <div>BIDANG KEAHLIAN</div>
+                    <div>{{ strtoupper($student->field_of_expertise ?: 'BISNIS MANAJEMEN DAN TEKNOLOGI') }}</div>
+                </div>
             </div>
 
-            <!-- Bidang Keahlian -->
-            <div class="cover-field-text">
-                <div>BIDANG KEAHLIAN</div>
-                <div>{{ strtoupper($student->field_of_expertise ?: 'BISNIS MANAJEMEN DAN TEKNOLOGI') }}</div>
+            <!-- 3. Bagian Bawah: Identitas Siswa -->
+            <div class="cover-bottom-section">
+                <table class="cover-student-table">
+                    <tr>
+                        <td style="width:170px;">Nama Siswa</td>
+                        <td style="width:20px;">:</td>
+                        <td class="dotted-line">{{ $student->name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Kelas</td>
+                        <td>:</td>
+                        <td class="dotted-line">{{ $student->class }}</td>
+                    </tr>
+                    <tr>
+                        <td>Program Keahlian</td>
+                        <td>:</td>
+                        <td class="dotted-line">{{ $student->major }}</td>
+                    </tr>
+                    <tr>
+                        <td>Periode Magang</td>
+                        <td>:</td>
+                        <td class="dotted-line">{{ $student->internship_period ?: '01 Oktober 2026 - 30 November 2026' }}</td>
+                    </tr>
+                </table>
             </div>
-
-            <!-- Identitas Siswa -->
-            <table class="cover-student-table">
-                <tr>
-                    <td style="width:170px;">Nama Siswa</td>
-                    <td style="width:20px;">:</td>
-                    <td class="dotted-line">{{ $student->name }}</td>
-                </tr>
-                <tr>
-                    <td>Kelas</td>
-                    <td>:</td>
-                    <td class="dotted-line">{{ $student->class }}</td>
-                </tr>
-                <tr>
-                    <td>Program Keahlian</td>
-                    <td>:</td>
-                    <td class="dotted-line">{{ $student->major }}</td>
-                </tr>
-                <tr>
-                    <td>Periode Magang</td>
-                    <td>:</td>
-                    <td class="dotted-line">{{ $student->internship_period ?: '01 Oktober 2026 - 30 November 2026' }}</td>
-                </tr>
-            </table>
         </div>
     </div>
 
