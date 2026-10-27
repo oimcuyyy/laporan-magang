@@ -1597,7 +1597,7 @@
 
     <!-- VIEW 1: FORMULIR TERSTRUKTUR (KOTAK-KOTAK RAPI TERSUSUN) -->
     <div id="identitasFormView">
-        <form action="{{ route('students.update', $student->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('students.update', $student->id) }}" method="POST" enctype="multipart/form-data" onsubmit="preserveScrollPosition()">
             @csrf
             @method('PUT')
 
@@ -1995,7 +1995,7 @@
 </div>
 
 @php
-    $selectedSheetId = request()->query('sheet', $student->activitySheets->first()->id ?? null);
+    $selectedSheetId = (request()->query('tab') !== 'presensi' ? request()->query('sheet') : null) ?? $student->activitySheets->first()->id ?? null;
     $currentSheet = $student->activitySheets->firstWhere('id', $selectedSheetId) ?: $student->activitySheets->first();
 @endphp
 <div class="tab-card word-page-section" id="page-3-uraian">
@@ -2011,7 +2011,7 @@
         <div class="slide-pills">
             <span style="font-size:0.85rem;font-weight:700;color:var(--slate-600);margin-right:0.25rem;">Pilih Lembar Slide:</span>
             @foreach($student->activitySheets as $sheet)
-                <a href="{{ route('students.show', [$student->id, 'tab' => 'uraian', 'sheet' => $sheet->id]) }}" class="slide-pill {{ $sheet->id === $currentSheet->id ? 'active' : '' }}">
+                <a href="{{ route('students.show', [$student->id, 'tab' => 'uraian', 'sheet' => $sheet->id]) }}#page-3-uraian" class="slide-pill {{ $sheet->id === $currentSheet->id ? 'active' : '' }}" onclick="preserveScrollPosition()">
                     Slide {{ $sheet->sheet_number }} ({{ $sheet->month_name }})
                 </a>
             @endforeach
@@ -2025,7 +2025,7 @@
             </button>
 
             @if($student->activitySheets->count() > 1)
-                <form action="{{ route('activity-sheets.destroy', [$student->id, $currentSheet->id]) }}" method="POST" onsubmit="return confirmDelete(event, this, 'Hapus Lembar Slide {{ $currentSheet->sheet_number }}?', 'Data 10 baris kegiatan pada lembar {{ $currentSheet->month_name }} ini akan dihapus permanen.')">
+                <form action="{{ route('activity-sheets.destroy', [$student->id, $currentSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition(); return confirmDelete(event, this, 'Hapus Lembar Slide {{ $currentSheet->sheet_number }}?', 'Data 10 baris kegiatan pada lembar {{ $currentSheet->month_name }} ini akan dihapus permanen.')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger btn-sm" title="Hapus slide ini" style="display:inline-flex;align-items:center;justify-content:center;padding:0.45rem 0.65rem;">
@@ -2043,7 +2043,7 @@
 
     <!-- Form 10 Baris Uraian Kegiatan -->
     @if($currentSheet)
-    <form action="{{ route('activity-sheets.update', [$student->id, $currentSheet->id]) }}" method="POST">
+    <form action="{{ route('activity-sheets.update', [$student->id, $currentSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
 
@@ -2136,7 +2136,7 @@
 </div>
 
 @php
-    $selectedAttId = request()->query('att_sheet', $student->attendanceSheets->first()->id ?? null);
+    $selectedAttId = (request()->query('tab') === 'presensi' ? request()->query('sheet') : request()->query('att_sheet')) ?? $student->attendanceSheets->first()->id ?? null;
     $currentAttSheet = $student->attendanceSheets->firstWhere('id', $selectedAttId) ?: $student->attendanceSheets->first();
 @endphp
 <div class="tab-card word-page-section" id="page-4-presensi">
@@ -2152,7 +2152,7 @@
         <div class="slide-pills">
             <span style="font-size:0.85rem;font-weight:700;color:var(--slate-600);margin-right:0.25rem;">Pilih Bulan:</span>
             @foreach($student->attendanceSheets as $aSheet)
-                <a href="{{ route('students.show', [$student->id, 'tab' => 'presensi', 'sheet' => $aSheet->id]) }}" class="slide-pill {{ $aSheet->id === $currentAttSheet->id ? 'active' : '' }}">
+                <a href="{{ route('students.show', [$student->id, 'tab' => 'presensi', 'sheet' => $aSheet->id]) }}#page-4-presensi" class="slide-pill {{ $aSheet->id === $currentAttSheet->id ? 'active' : '' }}" onclick="preserveScrollPosition()">
                     Bulan {{ $aSheet->month_name }}
                 </a>
             @endforeach
@@ -2173,7 +2173,7 @@
             </button>
 
             @if($student->attendanceSheets->count() > 1)
-                <form action="{{ route('attendance-sheets.destroy', [$student->id, $currentAttSheet->id]) }}" method="POST" onsubmit="return confirmDelete(event, this, 'Hapus Presensi Bulan {{ $currentAttSheet->month_name }}?', 'Seluruh catatan absensi harian pada bulan ini akan dihapus permanen.')">
+                <form action="{{ route('attendance-sheets.destroy', [$student->id, $currentAttSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition(); return confirmDelete(event, this, 'Hapus Presensi Bulan {{ $currentAttSheet->month_name }}?', 'Seluruh catatan absensi harian pada bulan ini akan dihapus permanen.')">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="btn btn-danger btn-sm" title="Hapus bulan ini" style="display:inline-flex;align-items:center;justify-content:center;padding:0.45rem 0.65rem;">
@@ -2190,7 +2190,7 @@
     </div>
 
     @if($currentAttSheet)
-    <form action="{{ route('attendance-sheets.update', [$student->id, $currentAttSheet->id]) }}" method="POST">
+    <form action="{{ route('attendance-sheets.update', [$student->id, $currentAttSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
 
@@ -2365,7 +2365,7 @@
         </div>
     </div>
 
-    <form action="{{ route('evaluations.update', $student->id) }}" method="POST">
+    <form action="{{ route('evaluations.update', $student->id) }}" method="POST" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
 
@@ -2522,6 +2522,81 @@
 
 @push('scripts')
 <script>
+    // Simpan posisi scroll agar saat ganti slide / submit form layar tidak melompat ke atas
+    function preserveScrollPosition() {
+        try {
+            sessionStorage.setItem('laporan_scroll_pos', window.pageYOffset.toString());
+        } catch (e) {}
+    }
+
+    // Tangkap semua klik pada .slide-pill secara global
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.slide-pill')) {
+            preserveScrollPosition();
+        }
+    });
+
+    // Otomatis pulihkan posisi scroll saat halaman selesai dimuat
+    (function initScrollRestoration() {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
+        function restoreScrollPosition() {
+            try {
+                const savedPos = sessionStorage.getItem('laporan_scroll_pos');
+                if (savedPos !== null) {
+                    sessionStorage.removeItem('laporan_scroll_pos');
+                    const targetY = parseInt(savedPos, 10);
+                    if (!isNaN(targetY)) {
+                        window.scrollTo({
+                            top: targetY,
+                            behavior: 'instant'
+                        });
+                        return;
+                    }
+                }
+            } catch (e) {}
+
+            // Fallback: deteksi parameter query tab atau anchor hash pada URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            const hash = window.location.hash;
+
+            let targetId = null;
+            if (hash && document.querySelector(hash)) {
+                targetId = hash.replace('#', '');
+            } else if (tab === 'uraian') {
+                targetId = 'page-3-uraian';
+            } else if (tab === 'presensi') {
+                targetId = 'page-4-presensi';
+            } else if (tab === 'penilaian') {
+                targetId = 'page-5-penilaian';
+            } else if (tab === 'identitas') {
+                targetId = 'page-2-identitas';
+            }
+
+            if (targetId) {
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    const yOffset = -85;
+                    const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    window.scrollTo({
+                        top: Math.max(0, y),
+                        behavior: 'instant'
+                    });
+                }
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', restoreScrollPosition);
+        } else {
+            restoreScrollPosition();
+        }
+        window.addEventListener('load', restoreScrollPosition);
+    })();
+
     // Smooth Scroll Jump to Word Document Page
     function jumpToWordPage(pageId, clickedEl) {
         const target = document.getElementById(pageId);
@@ -2608,6 +2683,7 @@
                 input.value = result.value;
                 form.appendChild(input);
 
+                preserveScrollPosition();
                 document.body.appendChild(form);
                 Swal.fire({
                     title: 'Membuat Lembar Baru...',
@@ -2680,6 +2756,7 @@
                 dInput.value = result.value.days;
                 form.appendChild(dInput);
 
+                preserveScrollPosition();
                 document.body.appendChild(form);
                 Swal.fire({
                     title: 'Membuat Lembar Presensi...',
