@@ -77,34 +77,55 @@
             text-decoration: none;
         }
 
+        @page {
+            size: A4 portrait;
+            margin: 12mm 15mm 12mm 15mm;
+        }
+
         /* Lembar A4 Fisik */
         .page-a4 {
             width: 210mm;
             min-height: 297mm;
-            padding: 20mm 20mm 20mm 25mm;
-            margin: 25px auto;
+            max-height: 297mm;
+            padding: 16mm 18mm 16mm 22mm;
+            margin: 20px auto;
             background: #ffffff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.12);
             position: relative;
-            page-break-after: always;
             box-sizing: border-box;
             overflow: hidden;
+            page-break-after: always;
+            break-after: page;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         @media print {
-            body {
+            html, body {
+                width: 210mm;
+                height: auto;
                 background: #ffffff;
+                margin: 0 !important;
+                padding: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .print-toolbar {
                 display: none !important;
             }
             .page-a4 {
-                width: 100%;
-                min-height: auto;
-                margin: 0;
-                padding: 18mm 18mm 18mm 22mm;
-                box-shadow: none;
-                page-break-after: always;
+                width: 100% !important;
+                height: 270mm !important;
+                min-height: 270mm !important;
+                max-height: 270mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                overflow: hidden !important;
             }
         }
 
@@ -115,25 +136,28 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 257mm;
+            height: 100%;
+            max-height: 265mm;
             position: relative;
+            box-sizing: border-box;
+            padding-bottom: 2mm;
         }
 
         .cover-top-corner {
             position: absolute;
-            top: -20mm;
-            left: -25mm;
-            width: 160px;
-            height: 160px;
+            top: -12mm;
+            left: -15mm;
+            width: 130px;
+            height: 130px;
             pointer-events: none;
         }
 
         .cover-bottom-corner {
             position: absolute;
-            bottom: -20mm;
-            right: -20mm;
-            width: 180px;
-            height: 180px;
+            bottom: -10mm;
+            right: -12mm;
+            width: 140px;
+            height: 140px;
             pointer-events: none;
         }
 
@@ -146,11 +170,11 @@
 
         .cover-main-titles {
             text-align: center;
-            margin-top: 15mm;
+            margin-top: 5mm;
         }
 
         .cover-main-titles h1 {
-            font-size: 32pt;
+            font-size: 26pt;
             font-weight: 900;
             color: #1e3a8a;
             letter-spacing: 2px;
@@ -158,50 +182,50 @@
         }
 
         .cover-main-titles h2 {
-            font-size: 19pt;
+            font-size: 16pt;
             font-weight: 900;
             color: #e11d48;
             letter-spacing: 1px;
-            margin-top: 6px;
-            margin-bottom: 25px;
+            margin-top: 4px;
+            margin-bottom: 12px;
         }
 
         .cover-school-text {
-            font-size: 18pt;
+            font-size: 15pt;
             font-weight: 900;
             color: #0f172a;
             letter-spacing: 1px;
         }
 
         .cover-academic-year {
-            font-size: 16pt;
+            font-size: 13pt;
             font-weight: 900;
             color: #0f172a;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
         .cover-field-text {
             text-align: right;
-            margin-top: 25mm;
+            margin-top: 6mm;
             padding-right: 5mm;
         }
 
         .cover-field-text div {
-            font-size: 15pt;
+            font-size: 12.5pt;
             font-weight: 900;
             color: #e11d48;
             line-height: 1.25;
         }
 
         .cover-student-table {
-            margin-top: 20mm;
+            margin-top: 6mm;
             width: 100%;
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: 600;
         }
 
         .cover-student-table td {
-            padding: 5px 6px;
+            padding: 4px 6px;
         }
 
         .dotted-line {
@@ -214,18 +238,18 @@
         /* ---------------------------------------------------- */
         .page-title {
             text-align: center;
-            font-size: 14pt;
+            font-size: 13.5pt;
             font-weight: 800;
             letter-spacing: 0.5px;
-            margin-bottom: 8mm;
+            margin-bottom: 6mm;
             text-decoration: underline;
         }
 
         .identity-table {
             width: 100%;
-            font-size: 10pt;
+            font-size: 9.5pt;
             border-collapse: separate;
-            border-spacing: 0 4.5px;
+            border-spacing: 0 4px;
         }
 
         .identity-table td {
@@ -259,19 +283,73 @@
         }
 
         /* ---------------------------------------------------- */
-        /* LEMBAR 3, 4, 5: TABEL RESMI                          */
+        /* LEMBAR 3: URAIAN KEGIATAN MAGANG (10 BARIS TERSTRUKTUR) */
+        /* ---------------------------------------------------- */
+        .table-activity {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            font-size: 8.8pt;
+            margin-top: 3mm;
+        }
+
+        .table-activity th,
+        .table-activity td {
+            border: 1px solid #000000;
+            padding: 5px 6px;
+            box-sizing: border-box;
+        }
+
+        .table-activity th {
+            text-align: center;
+            font-weight: 700;
+            background: #f8fafc;
+            height: 32px;
+        }
+
+        .table-activity tr.activity-row {
+            height: 18.5mm;
+        }
+
+        /* ---------------------------------------------------- */
+        /* LEMBAR 4: DAFTAR HADIR MAGANG                        */
+        /* ---------------------------------------------------- */
+        .table-attendance {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+            margin-top: 2mm;
+        }
+
+        .table-attendance th,
+        .table-attendance td {
+            border: 1px solid #000000;
+            padding: 1.8px 3px;
+            vertical-align: middle;
+            line-height: 1.15;
+            box-sizing: border-box;
+        }
+
+        .table-attendance th {
+            text-align: center;
+            font-weight: 700;
+            background: #f8fafc;
+        }
+
+        /* ---------------------------------------------------- */
+        /* LEMBAR 5: TABEL RESMI PENILAIAN                      */
         /* ---------------------------------------------------- */
         .table-official {
             width: 100%;
             border-collapse: collapse;
-            font-size: 9.5pt;
-            margin-top: 5mm;
+            font-size: 9pt;
+            margin-top: 3mm;
         }
 
         .table-official th,
         .table-official td {
             border: 1px solid #000000;
-            padding: 6px 7px;
+            padding: 5px 6px;
             vertical-align: middle;
         }
 
@@ -279,12 +357,6 @@
             text-align: center;
             font-weight: 700;
             background: #f8fafc;
-        }
-
-        .table-attendance th,
-        .table-attendance td {
-            padding: 3px 4px;
-            font-size: 8.5pt;
         }
     </style>
 </head>
@@ -476,7 +548,7 @@
         </table>
 
         <!-- Foto & Tanda Tangan Tanggal Sesuai Foto 2 -->
-        <div style="margin-top:12mm;display:flex;justify-content:space-between;align-items:flex-end;">
+        <div style="margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-end;">
             <div class="photo-box-physical">
                 @if($student->photo_url)
                     <img src="{{ $student->photo_url }}" alt="Foto {{ $student->name }}">
@@ -487,7 +559,7 @@
 
             <div style="text-align:center;min-width:180px;">
                 <p>Jakarta, {{ $todayIndo }}</p>
-                <div style="height:22mm;"></div>
+                <div style="height:16mm;"></div>
                 <p style="border-top:1px solid #000000;display:inline-block;padding-top:2px;min-width:160px;">
                     ( {{ $student->name }} )
                 </p>
@@ -508,31 +580,39 @@
             @endif
         </div>
 
-        <table class="table-official">
+        <table class="table-activity">
             <thead>
                 <tr>
-                    <th style="width:35px;">No.</th>
-                    <th style="width:130px;">Hari / Tanggal</th>
-                    <th style="width:140px;">Divisi / Bagian</th>
+                    <th style="width:38px;">No.</th>
+                    <th style="width:125px;">Hari / Tanggal</th>
+                    <th style="width:130px;">Divisi / Bagian</th>
                     <th>Uraian Pekerjaan</th>
-                    <th style="width:115px;">Pembimbing Industri</th>
+                    <th style="width:120px;">Pembimbing Industri</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($sheet->activityLogs as $log)
-                    <tr>
-                        <td style="text-align:center;font-weight:700;">{{ $log->row_index }}.</td>
-                        <td>{{ $log->day_date }}</td>
-                        <td>{{ $log->division }}</td>
-                        <td>{{ $log->job_description }}</td>
-                        <td style="text-align:center;font-size:8.5pt;">
-                            {{ $log->supervisor_note }}
-                            @if($log->is_approved)
+                @php
+                    $logsByRow = $sheet->activityLogs->keyBy('row_index');
+                @endphp
+                @for($r = 1; $r <= 10; $r++)
+                    @php
+                        $log = $logsByRow->get($r);
+                    @endphp
+                    <tr class="activity-row">
+                        <td style="text-align:center;font-weight:700;vertical-align:top;padding-top:6px;">{{ $r }}.</td>
+                        <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;">{{ $log ? $log->day_date : '' }}</td>
+                        <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;">{{ $log ? $log->division : '' }}</td>
+                        <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;word-break:break-word;line-height:1.35;">{{ $log ? $log->job_description : '' }}</td>
+                        <td style="text-align:center;font-size:8pt;vertical-align:top;padding-top:6px;">
+                            @if($log && $log->supervisor_note)
+                                {{ $log->supervisor_note }}
+                            @endif
+                            @if($log && $log->is_approved)
                                 <div style="font-weight:700;color:#065f46;margin-top:2px;">[Disetujui]</div>
                             @endif
                         </td>
                     </tr>
-                @endforeach
+                @endfor
             </tbody>
         </table>
     </div>
@@ -579,8 +659,8 @@
         </table>
 
         <!-- Rekapitulasi Kehadiran Fisik Sesuai Foto 4 -->
-        <div style="margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-start;font-size:9.5pt;">
-            <div style="line-height:1.5;">
+        <div style="margin-top:3.5mm;display:flex;justify-content:space-between;align-items:flex-start;font-size:9pt;">
+            <div style="line-height:1.45;">
                 <table style="border:none;">
                     <tr>
                         <td style="width:180px;">Rekapitulasi Kehadiran</td>
@@ -607,7 +687,7 @@
 
             <div style="text-align:center;min-width:180px;">
                 <p>Pembimbing Industri</p>
-                <div style="height:18mm;"></div>
+                <div style="height:14mm;"></div>
                 <p style="border-top:1px dotted #000000;display:inline-block;padding-top:2px;min-width:160px;">
                     {{ $student->mentor_name ?: '..........................................' }}
                 </p>
@@ -701,10 +781,10 @@
         </table>
 
         <!-- Keterangan Nilai & Tanda Tangan Sesuai Foto 5 -->
-        <div style="margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-start;">
+        <div style="margin-top:3.5mm;display:flex;justify-content:space-between;align-items:flex-start;">
             <div>
-                <p style="font-weight:700;font-size:9pt;margin-bottom:2px;">Keterangan Nilai:</p>
-                <table class="table-official" style="width:230px;font-size:8pt;margin-top:0;">
+                <p style="font-weight:700;font-size:8.5pt;margin-bottom:2px;">Keterangan Nilai:</p>
+                <table class="table-official" style="width:220px;font-size:7.8pt;margin-top:0;">
                     <thead>
                         <tr>
                             <th>Nilai</th>
@@ -737,10 +817,10 @@
                 </table>
             </div>
 
-            <div style="text-align:center;min-width:200px;font-size:9.5pt;">
+            <div style="text-align:center;min-width:200px;font-size:9pt;">
                 <p>{{ $eval->evaluation_date ?: ('Jakarta, ' . $todayIndo) }}</p>
                 <p style="margin-top:2px;">Pembimbing Dunia Industri</p>
-                <div style="height:20mm;"></div>
+                <div style="height:15mm;"></div>
                 <p style="border-top:1px dotted #000000;display:inline-block;padding-top:2px;min-width:170px;font-weight:700;">
                     {{ $eval->mentor_name ?: $student->mentor_name ?: '..........................................' }}
                 </p>
