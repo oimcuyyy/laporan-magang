@@ -21,9 +21,8 @@ class StudentCoverQuickUpdateTest extends TestCase
     {
         $student = Student::first();
         $this->assertNotNull($student);
-        $key = config('services.api.key') ?: env('API_SECRET_KEY');
 
-        $response = $this->withHeader('X-PRESENTER-KEY', $key)->patchJson(route('students.quick-cover', $student->id), [
+        $response = $this->patchJson(route('students.quick-cover', $student->id), [
             'major' => 'Bisnis Retail',
             'class' => 'XI BR',
             'academic_year' => '2026/2027',
@@ -47,9 +46,8 @@ class StudentCoverQuickUpdateTest extends TestCase
     {
         $student = Student::first();
         $this->assertNotNull($student);
-        $key = config('services.api.key') ?: env('API_SECRET_KEY');
 
-        $response = $this->withHeader('X-PRESENTER-KEY', $key)->postJson(route('students.clone', $student->id), [
+        $response = $this->postJson(route('students.clone', $student->id), [
             'major' => 'Bisnis Digital',
             'class' => 'XI BD',
             'academic_year' => '2027/2028',

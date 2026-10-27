@@ -40,83 +40,117 @@ class PresentationModeProtectionTest extends TestCase
         $responsePrint->assertSee('IDENTITAS PESERTA');
     }
 
-    public function test_unauthorized_data_mutation_is_immediately_blocked_with_401(): void
+    public function test_legitimate_web_user_can_edit_and_save_data_without_401(): void
     {
         $student = Student::first();
         $this->assertNotNull($student);
 
-        // 1. Coba hapus siswa tanpa otorisasi presenter -> Wajib 401
-        $responseDelete = $this->delete("/students/{$student->id}");
-        $responseDelete->assertStatus(401);
-
-        // 2. Coba ubah nilai evaluasi tanpa otorisasi presenter -> Wajib 401
+        // Form edit penilaian dapat disimpan langsung secara normal
         $responseEval = $this->put("/students/{$student->id}/evaluation", [
-            'aspect_a_score' => 100,
-            'aspect_b_score' => 100,
-            'aspect_c_score' => 100,
-            'evaluation_date' => 'Jakarta, 31 Oktober 2026',
-        ]);
-        $responseEval->assertStatus(401);
-
-        // 3. Coba tambah siswa baru tanpa otorisasi presenter -> Wajib 401
-        $responseStore = $this->post('/students', [
-            'name' => 'Hacker Tamu',
-            'nis' => '99999',
-            'class' => 'XII',
-            'major' => 'RPL',
-            'gender' => 'Laki-Laki',
-            'school_name' => 'SMKN 20',
-            'company_name' => 'Kantor',
-            'teacher_name' => 'Guru',
-        ]);
-        $responseStore->assertStatus(401);
-    }
-
-    public function test_authorized_presenter_can_mutate_data_successfully(): void
-    {
-        $student = Student::first();
-        $this->assertNotNull($student);
-        $key = config('services.api.key') ?: env('API_SECRET_KEY');
-
-        $response = $this->withHeader('X-PRESENTER-KEY', $key)->put("/students/{$student->id}/evaluation", [
             'aspect_a_score' => 96,
             'aspect_b_score' => 94,
             'aspect_c_score' => 98,
             'evaluation_date' => 'Jakarta, 31 Oktober 2026',
-            'mentor_name' => 'Pembimbing Presentasi',
+            'mentor_name' => 'Pembimbing Industri',
         ]);
-
-        $response->assertRedirect();
-        $this->assertDatabaseHas('evaluations', [
-            'student_id' => $student->id,
-            'aspect_a_score' => 96,
-        ]);
-    }
-
-    public function test_secret_url_unlock_enables_session_mutations(): void
-    {
-        $student = Student::first();
-        $this->assertNotNull($student);
-        $key = config('services.api.key') ?: env('API_SECRET_KEY');
-
-        // Buka kunci via parameter ?unlock=
-        $responseUnlock = $this->get('/?unlock='.$key);
-        $responseUnlock->assertStatus(302);
-
-        // Setelah unlock tersimpan di sesi browser presenter, mutasi diizinkan
-        $responseEval = $this->withSession(['presenter_unlocked' => true])
-            ->put("/students/{$student->id}/evaluation", [
-                'aspect_a_score' => 97,
-                'aspect_b_score' => 95,
-                'aspect_c_score' => 99,
-                'evaluation_date' => 'Jakarta, 31 Oktober 2026',
-                'mentor_name' => 'Pembimbing Lapangan',
-            ]);
 
         $responseEval->assertRedirect();
         $this->assertDatabaseHas('evaluations', [
             'student_id' => $student->id,
-            'aspect_a_score' => 97,
+            'aspect_a_score' => 96,
+            'average_score' => 96.0,
+            'final_grade' => 'A',
         ]);
+    }
+
+    public function test_data_manipulation_with_invalid_scores_is_blocked_by_validation(): void
+    {
+        $student = Student::first();
+        $this->assertNotNull($student);
+
+        // Mencoba memanipulasi skor di luar batas wajar (misal: skor 999 atau negatif)
+        $responseInvalid = $this->from("/students/{$student->id}?tab=penilaian")
+            ->put("/students/{$student->id}/evaluation", [
+                'aspect_a_score' => 999,
+                'aspect_b_score' => -10,
+                'aspect_c_score' => 80,
+                'evaluation_date' => 'Jakarta, 31 Oktober 2026',
+            ]);
+
+        $responseInvalid->assertSessionHasErrors(['aspect_a_score', 'aspect_b_score']);
+    }
+
+    public function test_tampering_url_query_tab_throws_401_with_warning(): void
+    {
+        $student = Student::first();
+        $this->assertNotNull($student);
+
+        // Mengubah parameter tab di link URL menjadi tab palsu
+        $response = $this->get("/students/{$student->id}?tab=hacker_link");
+
+        $response->assertStatus(401);
+        $response->assertSee('Jangan mengubah-ubah di web ini', false);
+    }
+
+    public function test_tampering_url_query_with_unexpected_param_throws_401_with_warning(): void
+    {
+        $student = Student::first();
+        $this->assertNotNull($student);
+
+        // Mengubah link dengan menyisipkan parameter query liar
+        $response = $this->get("/students/{$student->id}?admin=true");
+
+        $response->assertStatus(401);
+        $response->assertSee('Jangan mengubah-ubah di web ini', false);
+    }
+
+    public function test_tampering_url_student_id_to_non_existent_throws_401_with_warning(): void
+    {
+        // Mengubah link ID siswa ke ID yang tidak ada
+        $response = $this->get('/students/9999');
+
+        $response->assertStatus(401);
+        $response->assertSee('Jangan mengubah-ubah di web ini', false);
+    }
+
+    public function test_tampering_url_to_random_unregistered_path_throws_401_with_warning(): void
+    {
+        // Mengubah link URL ke alamat acak
+        $response = $this->get('/hacked-admin-panel');
+
+        $response->assertStatus(401);
+        $response->assertSee('Jangan mengubah-ubah di web ini', false);
+    }
+
+    public function test_cross_student_sheet_manipulation_is_rejected_with_401_and_warning(): void
+    {
+        $students = Student::take(2)->get();
+        if ($students->count() < 2) {
+            $student2 = Student::create([
+                'name' => 'Siswa Kedua',
+                'nis' => '14451',
+                'class' => 'XI RPL',
+                'major' => 'RPL',
+                'gender' => 'Laki-Laki',
+                'school_name' => 'SMKN 20',
+                'company_name' => 'Kantor',
+                'teacher_name' => 'Guru',
+            ]);
+        } else {
+            $student2 = $students[1];
+        }
+
+        $student1 = $students[0];
+        $sheetOfStudent1 = $student1->activitySheets()->first();
+        $this->assertNotNull($sheetOfStudent1);
+
+        // Mencoba mengupdate lembar milik Siswa 1 lewat rute Siswa 2 (IDOR / Manipulasi URL)
+        $responseAttack = $this->put("/students/{$student2->id}/activity-sheets/{$sheetOfStudent1->id}", [
+            'month_name' => 'Manipulated Month',
+            'logs' => [],
+        ]);
+
+        $responseAttack->assertStatus(401);
+        $responseAttack->assertSee('Jangan mengubah-ubah di web ini', false);
     }
 }

@@ -8,6 +8,13 @@ class UpdateAttendanceSheetRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        $sheet = $this->route('sheet');
+        $student = $this->route('student');
+
+        if ($sheet && $student && $sheet->student_id !== $student->id) {
+            return false;
+        }
+
         return true;
     }
 

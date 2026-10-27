@@ -114,6 +114,100 @@ class WebProtectiveFirewall
     }
 
     /**
+     * Render response khusus ketika terdeteksi pengubahan / manipulasi tautan atau parameter URL
+     */
+    public static function renderTamperedUrlResponse(Request $request, string $detailReason = 'Tautan atau parameter pada URL telah diubah-ubah secara tidak sah.'): Response
+    {
+        $responseData = [
+            'success' => false,
+            'status' => 'error',
+            'code' => 401,
+            'waf_status' => 'BLOCKED',
+            'error' => 'URL_TAMPERING_DETECTED',
+            'warning' => 'PERINGATAN: (Jangan mengubah-ubah di web ini)',
+            'message' => 'Akses ditolak: Tautan atau parameter URL telah diubah-ubah secara tidak sah.',
+            'detail' => $detailReason,
+            'client_ip' => $request->ip(),
+            'timestamp' => now()->toISOString(),
+        ];
+
+        if ($request->expectsJson() || $request->is('api/*')) {
+            return response()->json($responseData, 401, [
+                'X-WAF-Status' => 'BLOCKED',
+                'X-WAF-Reason' => 'URL_TAMPERING',
+            ]);
+        }
+
+        $escapedDetail = htmlspecialchars($detailReason, ENT_QUOTES, 'UTF-8');
+        $escapedIp = htmlspecialchars($request->ip() ?: 'Unknown', ENT_QUOTES, 'UTF-8');
+        $escapedTimestamp = htmlspecialchars($responseData['timestamp'], ENT_QUOTES, 'UTF-8');
+        $escapedUrl = htmlspecialchars($request->fullUrl(), ENT_QUOTES, 'UTF-8');
+
+        $html = <<<HTML
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>401 Unauthorized - Manipulasi URL Terdeteksi</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.5rem; box-sizing: border-box; }
+        .card { background: #1e293b; border: 1.5px solid #ef4444; border-radius: 14px; padding: 2.25rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
+        .icon-wrap { width: 68px; height: 68px; margin: 0 auto 1.25rem auto; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444; }
+        h1 { color: #ef4444; font-size: 1.7rem; margin: 0 0 0.35rem 0; font-weight: 800; letter-spacing: -0.5px; }
+        .subtitle { color: #f87171; font-size: 1rem; margin: 0 0 1.25rem 0; font-weight: 600; }
+        .warning-banner { background: #7f1d1d; border: 2px solid #ef4444; color: #fef2f2; padding: 0.95rem 1.2rem; border-radius: 10px; font-weight: 800; font-size: 1.05rem; margin-bottom: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); letter-spacing: 0.2px; }
+        .reason-box { background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; text-align: left; }
+        .reason-box p { margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 0.9rem; line-height: 1.5; }
+        .reason-box code { font-size: 0.8rem; color: #cbd5e1; word-break: break-all; background: #020617; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; border: 1px solid #1e293b; }
+        .btn { display: inline-block; background: #2563eb; color: #ffffff; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; transition: background 0.15s ease; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.4); }
+        .btn:hover { background: #1d4ed8; }
+        .meta { margin-top: 1.25rem; font-size: 0.75rem; color: #64748b; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="icon-wrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <h1>401 Akses Ditolak</h1>
+        <p class="subtitle">Manipulasi Link / Parameter URL Terdeteksi</p>
+        
+        <div class="warning-banner">
+            ⚠️ PERINGATAN: (Jangan mengubah-ubah di web ini)
+        </div>
+
+        <div class="reason-box">
+            <p><strong>Keterangan Sistem:</strong> {$escapedDetail}</p>
+            <code>URL: {$escapedUrl}</code>
+        </div>
+
+        <p style="color:#94a3b8;font-size:0.85rem;line-height:1.5;margin-bottom:1rem;">
+            Aktivitas pengubahan tautan atau parameter URL secara manual dilarang demi menjaga integritas data rekapitulasi laporan magang SMK Negeri 20 Jakarta.
+        </p>
+
+        <a href="/students" class="btn">&larr; Kembali ke Halaman Utama yang Aman</a>
+
+        <div class="meta">
+            IP: {$escapedIp} &bull; Waktu: {$escapedTimestamp} &bull; SMK Negeri 20 Jakarta
+        </div>
+    </div>
+</body>
+</html>
+HTML;
+
+        return response($html, 401, [
+            'Content-Type' => 'text/html',
+            'X-WAF-Status' => 'BLOCKED',
+            'X-WAF-Reason' => 'URL_TAMPERING',
+        ]);
+    }
+
+    /**
      * Blokir request dan catat ke log keamanan
      */
     protected function blockRequest(Request $request, string $threatType, string $severity, string $matchedPattern, ?string $payload): Response
@@ -172,33 +266,42 @@ class WebProtectiveFirewall
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>401 Unauthorized - WAF Protection</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #1e293b; border: 1px solid #ef4444; border-radius: 12px; padding: 2.5rem; max-width: 550px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
-        h1 { color: #ef4444; font-size: 1.75rem; margin-bottom: 0.5rem; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.5rem; box-sizing: border-box; }
+        .card { background: #1e293b; border: 1.5px solid #ef4444; border-radius: 14px; padding: 2.25rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
+        .icon-wrap { width: 68px; height: 68px; margin: 0 auto 1.25rem auto; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444; }
+        h1 { color: #ef4444; font-size: 1.7rem; margin: 0 0 0.5rem 0; font-weight: 800; }
         p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.25rem; }
-        .badge { background: #fee2e2; color: #991b1b; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 0.85rem; display: inline-block; }
-        .btn { display: inline-block; background: #2563eb; color: #fff; padding: 0.6rem 1.25rem; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 1.5rem; }
+        .warning-banner { background: #7f1d1d; border: 2px solid #ef4444; color: #fef2f2; padding: 0.95rem 1.2rem; border-radius: 10px; font-weight: 800; font-size: 1.05rem; margin-bottom: 1.25rem; letter-spacing: 0.2px; }
+        .badge { background: #fee2e2; color: #991b1b; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 0.85rem; display: inline-block; margin: 0 4px; }
+        .btn { display: inline-block; background: #2563eb; color: #fff; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 1.5rem; transition: background 0.15s ease; }
+        .btn:hover { background: #1d4ed8; }
     </style>
 </head>
 <body>
     <div class="card">
-        <div style="margin-bottom:1rem;color:#ef4444;display:flex;justify-content:center;">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <div class="icon-wrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                 <line x1="12" y1="8" x2="12" y2="12"/>
                 <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
         </div>
         <h1>401 Akses Ditolak oleh WAF</h1>
+        
+        <div class="warning-banner">
+            ⚠️ PERINGATAN: (Jangan mengubah-ubah di web ini)
+        </div>
+
         <p>Aktivitas atau parameter permintaan Anda terdeteksi mencurigakan dan telah diblokir secara otomatis oleh <strong>Web Application Firewall (WAF)</strong> demi menjaga keamanan sistem.</p>
         <div>
             <span class="badge">Tipe Ancaman: {$escapedThreatType}</span>
             <span class="badge" style="background:#fef3c7;color:#92400e;">Severity: {$escapedSeverity}</span>
         </div>
         <p style="margin-top:1rem;font-size:0.8rem;color:#64748b;">IP: {$escapedIp} &bull; Waktu: {$escapedTimestamp}</p>
-        <a href="/" class="btn">&larr; Kembali ke Halaman Utama</a>
+        <a href="/students" class="btn">&larr; Kembali ke Halaman Utama</a>
     </div>
 </body>
 </html>

@@ -77,10 +77,9 @@ class LaporanMagangTest extends TestCase
     public function test_add_activity_sheet_and_calculate_evaluation(): void
     {
         $student = Student::first();
-        $key = config('services.api.key') ?: env('API_SECRET_KEY');
 
-        // Test tambah slide lembar kegiatan (+) dengan otorisasi presenter
-        $responseSheet = $this->withHeader('X-PRESENTER-KEY', $key)->post("/students/{$student->id}/activity-sheets", [
+        // Test tambah slide lembar kegiatan (+) langsung dari web tanpa hambatan 401
+        $responseSheet = $this->post("/students/{$student->id}/activity-sheets", [
             'month_name' => 'November 2026',
         ]);
         $responseSheet->assertRedirect();
@@ -90,8 +89,8 @@ class LaporanMagangTest extends TestCase
             'month_name' => 'November 2026',
         ]);
 
-        // Test update penilaian dan otomatis hitung predikat dengan otorisasi presenter
-        $responseEval = $this->withHeader('X-PRESENTER-KEY', $key)->put("/students/{$student->id}/evaluation", [
+        // Test update penilaian dan otomatis hitung predikat secara aman
+        $responseEval = $this->put("/students/{$student->id}/evaluation", [
             'aspect_a_score' => 95,
             'aspect_b_score' => 92,
             'aspect_c_score' => 96,

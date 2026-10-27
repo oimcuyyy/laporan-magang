@@ -18,8 +18,8 @@ Route::get('students/create', [StudentController::class, 'create'])->name('stude
 Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
 Route::get('students/{student}/print', [StudentController::class, 'printReport'])->name('students.print');
 
-// Rute Proteksi Mutasi Data Presentasi (Tolak Manipulasi Liar dengan Status 401 Unauthorized)
-Route::middleware(['presentation.protect'])->group(function () {
+// Rute Mutasi Data Laporan Magang (Diproteksi CSRF, Validasi Ketat Server-Side, & Anti-Flood Throttling)
+Route::middleware(['throttle:60,1'])->group(function () {
     // Tambah, Edit, Kloning, Hapus Siswa
     Route::post('students', [StudentController::class, 'store'])->name('students.store');
     Route::match(['put', 'patch', 'post'], 'students/{student}', [StudentController::class, 'update'])->name('students.update');

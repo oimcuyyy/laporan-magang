@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\WebProtectiveFirewall;
 use App\Http\Requests\QuickUpdateCoverRequest;
 use App\Http\Requests\UpdateStudentRequest;
-use App\Models\ActivityLog;
-use App\Models\ActivitySheet;
-use App\Models\AttendanceRecord;
-use App\Models\AttendanceSheet;
-use App\Models\Evaluation;
 use App\Models\Student;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -16,14 +12,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 class StudentController extends Controller
 {
     /**
      * Dashboard Rekapitulasi Utama (Multi-Siswa 1-5 Siswa)
      */
-    public function index(): View
+    public function index(Request $request): View|Response
     {
+        // Tolak jika ada parameter tautan URL liar / mencurigakan
+        if (! empty($request->query())) {
+            $allowedParams = ['page', 'search'];
+            $extraParams = array_diff(array_keys($request->query()), $allowedParams);
+            if (! empty($extraParams)) {
+                return WebProtectiveFirewall::renderTamperedUrlResponse(
+                    $request,
+                    'Terdeteksi parameter liar pada link halaman utama ('.implode(', ', array_map('htmlspecialchars', $extraParams)).').'
+                );
+            }
+        }
+
         $students = Student::with(['activitySheets.activityLogs', 'attendanceSheets', 'evaluation'])
             ->orderBy('id')
             ->get();
@@ -37,14 +46,48 @@ class StudentController extends Controller
     /**
      * Menampilkan detail formulir 5 lembar untuk siswa tertentu
      */
-    public function show(Student $student, Request $request): View
+    public function show(Student $student, Request $request): View|Response
     {
+        // 1. Validasi parameter 'tab' jika disisipkan di URL
+        if ($request->has('tab')) {
+            $allowedTabs = ['cover', 'identitas', 'uraian', 'presensi', 'penilaian'];
+            $tab = $request->query('tab');
+            if (! in_array($tab, $allowedTabs, true)) {
+                return WebProtectiveFirewall::renderTamperedUrlResponse(
+                    $request,
+                    'Parameter tab pada link web ("'.htmlspecialchars((string) $tab).'") telah diubah ke nilai yang tidak sah.'
+                );
+            }
+        }
+
+        // 2. Validasi parameter 'sheet' jika disisipkan di URL
+        if ($request->has('sheet')) {
+            $sheetId = $request->query('sheet');
+            if (! is_numeric($sheetId) || (int) $sheetId <= 0) {
+                return WebProtectiveFirewall::renderTamperedUrlResponse(
+                    $request,
+                    'Parameter sheet pada link web telah diubah ke format yang tidak valid.'
+                );
+            }
+        }
+
+        // 3. Tolak jika ada penambahan query parameter tidak dikenal pada link
+        $allowedParams = ['tab', 'sheet'];
+        $incomingParams = array_keys($request->query());
+        $unexpected = array_diff($incomingParams, $allowedParams);
+        if (! empty($unexpected)) {
+            return WebProtectiveFirewall::renderTamperedUrlResponse(
+                $request,
+                'Terdeteksi penambahan parameter tautan yang tidak sah ('.implode(', ', array_map('htmlspecialchars', $unexpected)).').'
+            );
+        }
+
         $allStudents = Student::select('id', 'name', 'nis', 'class', 'major')->orderBy('id')->get();
-        
+
         $student->load([
             'activitySheets.activityLogs',
             'attendanceSheets.records',
-            'evaluation'
+            'evaluation',
         ]);
 
         // Pastikan siswa memiliki minimal 1 lembar kegiatan
@@ -76,7 +119,7 @@ class StudentController extends Controller
         }
 
         // Pastikan siswa memiliki record evaluasi
-        if (!$student->evaluation) {
+        if (! $student->evaluation) {
             $student->evaluation()->create([
                 'evaluation_date' => 'Jakarta, 31 Oktober 2026',
                 'mentor_name' => $student->mentor_name ?: 'Pembimbing Industri',
@@ -92,8 +135,16 @@ class StudentController extends Controller
     /**
      * Form tambah siswa baru (Maksimal 5 Siswa)
      */
-    public function create(): View|RedirectResponse
+    public function create(Request $request): View|RedirectResponse|Response
     {
+        // Tolak jika link create disusupi parameter query liar
+        if (! empty($request->query())) {
+            return WebProtectiveFirewall::renderTamperedUrlResponse(
+                $request,
+                'Terdeteksi parameter liar pada tautan formulir pendaftaran siswa.'
+            );
+        }
+
         $count = Student::count();
         if ($count >= 5) {
             return redirect()->route('students.index')->with('error', 'Maksimal 5 siswa dalam rekap kelompok ini.');
@@ -185,7 +236,8 @@ class StudentController extends Controller
             return redirect()->route('students.show', $student->id)->with('success', "Siswa {$student->name} berhasil ditambahkan!");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal menambahkan siswa: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Gagal menambahkan siswa: '.$e->getMessage());
         }
     }
 
@@ -195,7 +247,6 @@ class StudentController extends Controller
     public function update(UpdateStudentRequest $request, Student $student): RedirectResponse
     {
         $validated = $request->validated();
-
 
         if (empty($validated['class'])) {
             $validated['class'] = $student->class ?? 'XI';
@@ -261,6 +312,7 @@ class StudentController extends Controller
         $count = Student::count();
         if ($count >= 5) {
             $msg = 'Batas maksimal 5 siswa kelompok telah tercapai. Hapus siswa yang tidak terpakai jika ingin menambah kloning baru.';
+
             return $request->expectsJson() || $request->ajax()
                 ? response()->json(['success' => false, 'message' => $msg], 422)
                 : back()->with('error', $msg);
@@ -276,20 +328,20 @@ class StudentController extends Controller
         $newMajor = $validated['major'] ?? $student->major;
         $newClass = $validated['class'] ?? $student->class;
         $newYear = $validated['academic_year'] ?? ($student->academic_year ?: '2026/2027');
-        $newName = $validated['name'] ?? ($student->name . ' (Kloning ' . $newClass . ')');
+        $newName = $validated['name'] ?? ($student->name.' (Kloning '.$newClass.')');
 
         DB::beginTransaction();
         try {
             // Generate NIS unik
-            $newNis = (string)(intval($student->nis ?: '14450') + $count + rand(1, 9));
+            $newNis = (string) (intval($student->nis ?: '14450') + $count + rand(1, 9));
             while (Student::where('nis', $newNis)->exists()) {
-                $newNis = (string)(intval($newNis) + 1);
+                $newNis = (string) (intval($newNis) + 1);
             }
 
             $newStudent = Student::create([
                 'name' => $newName,
                 'nis' => $newNis,
-                'nisn' => $student->nisn ? $student->nisn . rand(1, 9) : null,
+                'nisn' => $student->nisn ? $student->nisn.rand(1, 9) : null,
                 'class' => $newClass,
                 'major' => $newMajor,
                 'field_of_expertise' => $student->field_of_expertise ?: 'Bisnis Manajemen dan Teknologi',
@@ -317,14 +369,14 @@ class StudentController extends Controller
             ]);
 
             // Inisialisasi lembar kegiatan siap pakai
-            $sheet1 = $newStudent->activitySheets()->create(['sheet_number' => 1, 'month_name' => 'Oktober ' . explode('/', $newYear)[0]]);
+            $sheet1 = $newStudent->activitySheets()->create(['sheet_number' => 1, 'month_name' => 'Oktober '.explode('/', $newYear)[0]]);
             for ($i = 1; $i <= 10; $i++) {
                 $sheet1->activityLogs()->create(['row_index' => $i]);
             }
 
             // Inisialisasi lembar presensi (18 Hari Kerja Senin - Jumat tanpa akhir pekan)
             $att = $newStudent->attendanceSheets()->create([
-                'month_name' => 'Oktober ' . explode('/', $newYear)[0],
+                'month_name' => 'Oktober '.explode('/', $newYear)[0],
                 'total_target_days' => 18,
             ]);
 
@@ -349,7 +401,7 @@ class StudentController extends Controller
 
             // Inisialisasi evaluasi
             $newStudent->evaluation()->create([
-                'evaluation_date' => 'Jakarta, 31 Oktober ' . explode('/', $newYear)[0],
+                'evaluation_date' => 'Jakarta, 31 Oktober '.explode('/', $newYear)[0],
                 'mentor_name' => $newStudent->mentor_name ?: 'Pembimbing Industri',
             ]);
 
@@ -366,21 +418,29 @@ class StudentController extends Controller
             return redirect()->route('students.show', $newStudent->id)->with('success', "Template siswa berhasil dikloning untuk {$newMajor}!");
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return $request->expectsJson() || $request->ajax()
                 ? response()->json(['success' => false, 'message' => $e->getMessage()], 500)
-                : back()->with('error', 'Gagal kloning: ' . $e->getMessage());
+                : back()->with('error', 'Gagal kloning: '.$e->getMessage());
         }
     }
 
     /**
      * Mode Cetak Berkas Fisik A4 (Cover, Identitas, Uraian Kegiatan, Presensi, Penilaian)
      */
-    public function printReport(Student $student): View
+    public function printReport(Student $student, Request $request): View|Response
     {
+        if (! empty($request->query())) {
+            return WebProtectiveFirewall::renderTamperedUrlResponse(
+                $request,
+                'Terdeteksi parameter liar pada tautan cetak dokumen fisik.'
+            );
+        }
+
         $student->load([
             'activitySheets.activityLogs',
             'attendanceSheets.records',
-            'evaluation'
+            'evaluation',
         ]);
 
         return view('students.print', compact('student'));
