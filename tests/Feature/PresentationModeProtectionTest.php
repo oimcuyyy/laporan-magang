@@ -163,4 +163,14 @@ class PresentationModeProtectionTest extends TestCase
         $response->assertSee('Jangan mengubah-ubah di web ini', false);
         $response->assertSee('Bagian akhir tautan link (#page-3-uraian/lock#wkwk) dimanipulasi');
     }
+
+    public function test_401_responses_strictly_contain_zero_emojis(): void
+    {
+        $response = $this->get('/tampered-url?url=http://localhost/bad&detail=Test');
+        $content = $response->getContent();
+        // Emoji regex check
+        $hasEmoji = preg_match('/[\x{1F600}-\x{1F64F}\x{1F300}-\x{1F5FF}\x{1F680}-\x{1F6FF}\x{2600}-\x{26FF}\x{2700}-\x{27BF}]/u', $content);
+        $this->assertEquals(0, $hasEmoji, '401 response must not contain any emojis');
+    }
 }
+

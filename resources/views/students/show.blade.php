@@ -4,6 +4,59 @@
 
 @push('styles')
 <style>
+    /* Emil Kowalski Animation Principles */
+    @keyframes fadeSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes sectionHighlight {
+        0% {
+            box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.45);
+        }
+        50% {
+            box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.22);
+            border-color: #3b82f6;
+        }
+        100% {
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05);
+        }
+    }
+
+    @keyframes dropdownEnter {
+        from {
+            opacity: 0;
+            transform: scale(0.96) translateY(-4px);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    /* Emil Kowalski Button & Interactive Element Press Feedback */
+    button, .btn, .btn-pill, .switcher-pill, .btn-action, .btn-secondary, .btn-primary, .btn-sheet {
+        transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+    }
+
+    button:active, .btn:active, .btn-pill:active, .switcher-pill:active, .btn-action:active, .btn-sheet:active {
+        transform: scale(0.97) !important;
+    }
+
+    .word-page-section {
+        transition: box-shadow 260ms cubic-bezier(0.23, 1, 0.32, 1), border-color 260ms ease;
+    }
+
+    .word-page-section.highlight-pulse {
+        animation: sectionHighlight 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
     /* Student Switcher Bar */
     .student-switcher-bar {
         background: #ffffff;
@@ -191,9 +244,19 @@
         color: #334155;
         background: transparent;
         border: 1.5px solid transparent;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 180ms cubic-bezier(0.23, 1, 0.32, 1), background-color 180ms ease, border-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
         position: relative;
     }
+
+    .word-nav-item:active {
+        transform: scale(0.98);
+    }
+
+    .word-nav-item:nth-child(1) { animation: fadeSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) 0ms both; }
+    .word-nav-item:nth-child(2) { animation: fadeSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) 40ms both; }
+    .word-nav-item:nth-child(3) { animation: fadeSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) 80ms both; }
+    .word-nav-item:nth-child(4) { animation: fadeSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) 120ms both; }
+    .word-nav-item:nth-child(5) { animation: fadeSlideIn 240ms cubic-bezier(0.23, 1, 0.32, 1) 160ms both; }
 
     .word-nav-item:hover {
         background: #f8fafc;
@@ -1253,7 +1316,7 @@
     </div>
     <div class="switcher-pills">
         @foreach($allStudents as $idx => $s)
-            <a href="{{ route('students.show', [$s->id, 'tab' => $activeTab]) }}" class="switcher-pill {{ $s->id === $student->id ? 'active' : '' }}">
+            <a href="{{ route('students.show', [$s->id, 'tab' => $activeTab]) }}" data-student-id="{{ $s->id }}" class="switcher-pill {{ $s->id === $student->id ? 'active' : '' }}">
                 <span style="font-weight:800;">#{{ $idx + 1 }}</span>
                 {{ $s->name }} ({{ $s->nis }})
             </a>
@@ -1302,9 +1365,12 @@
             <span class="word-nav-count">5 Lembar</span>
         </div>
 
+        @php
+            $currentTab = request('tab', $activeTab ?? 'cover');
+        @endphp
         <nav class="word-nav-list" id="wordNavList">
             <!-- 1. Cover Laporan -->
-            <a href="#page-1-cover" class="word-nav-item active" data-target="page-1-cover" onclick="jumpToWordPage('page-1-cover', this); return false;" title="Halaman 1: Cover Laporan">
+            <a href="#page-1-cover" class="word-nav-item {{ $currentTab === 'cover' ? 'active' : '' }}" data-target="page-1-cover" data-tab="cover" onclick="jumpToWordPage('page-1-cover', this); return false;" title="Halaman 1: Cover Laporan">
                 <div class="word-page-num">
                     <span>1</span>
                     <small>Hal</small>
@@ -1317,7 +1383,7 @@
             </a>
 
             <!-- 2. Identitas Peserta -->
-            <a href="#page-2-identitas" class="word-nav-item" data-target="page-2-identitas" onclick="jumpToWordPage('page-2-identitas', this); return false;" title="Halaman 2: Identitas Peserta">
+            <a href="#page-2-identitas" class="word-nav-item {{ $currentTab === 'identitas' ? 'active' : '' }}" data-target="page-2-identitas" data-tab="identitas" onclick="jumpToWordPage('page-2-identitas', this); return false;" title="Halaman 2: Identitas Peserta">
                 <div class="word-page-num">
                     <span>2</span>
                     <small>Hal</small>
@@ -1330,7 +1396,7 @@
             </a>
 
             <!-- 3. Uraian Kegiatan -->
-            <a href="#page-3-uraian" class="word-nav-item" data-target="page-3-uraian" onclick="jumpToWordPage('page-3-uraian', this); return false;" title="Halaman 3: Uraian Kegiatan">
+            <a href="#page-3-uraian" class="word-nav-item {{ $currentTab === 'uraian' ? 'active' : '' }}" data-target="page-3-uraian" data-tab="uraian" onclick="jumpToWordPage('page-3-uraian', this); return false;" title="Halaman 3: Uraian Kegiatan">
                 <div class="word-page-num">
                     <span>3</span>
                     <small>Hal</small>
@@ -1343,7 +1409,7 @@
             </a>
 
             <!-- 4. Daftar Hadir Magang -->
-            <a href="#page-4-presensi" class="word-nav-item" data-target="page-4-presensi" onclick="jumpToWordPage('page-4-presensi', this); return false;" title="Halaman 4: Daftar Hadir Magang">
+            <a href="#page-4-presensi" class="word-nav-item {{ $currentTab === 'presensi' ? 'active' : '' }}" data-target="page-4-presensi" data-tab="presensi" onclick="jumpToWordPage('page-4-presensi', this); return false;" title="Halaman 4: Daftar Hadir Magang">
                 <div class="word-page-num">
                     <span>4</span>
                     <small>Hal</small>
@@ -1356,7 +1422,7 @@
             </a>
 
             <!-- 5. Lembar Penilaian -->
-            <a href="#page-5-penilaian" class="word-nav-item" data-target="page-5-penilaian" onclick="jumpToWordPage('page-5-penilaian', this); return false;" title="Halaman 5: Lembar Penilaian">
+            <a href="#page-5-penilaian" class="word-nav-item {{ $currentTab === 'penilaian' ? 'active' : '' }}" data-target="page-5-penilaian" data-tab="penilaian" onclick="jumpToWordPage('page-5-penilaian', this); return false;" title="Halaman 5: Lembar Penilaian">
                 <div class="word-page-num">
                     <span>5</span>
                     <small>Hal</small>
@@ -2604,8 +2670,24 @@
         window.addEventListener('load', restoreScrollPosition);
     })();
 
-    // Smooth Scroll Jump to Word Document Page
-    function jumpToWordPage(pageId, clickedEl) {
+    // Tab key to section ID mapping
+    const wordTabMap = {
+        'cover': 'page-1-cover',
+        'identitas': 'page-2-identitas',
+        'uraian': 'page-3-uraian',
+        'presensi': 'page-4-presensi',
+        'penilaian': 'page-5-penilaian'
+    };
+    const wordPageToTab = {
+        'page-1-cover': 'cover',
+        'page-2-identitas': 'identitas',
+        'page-3-uraian': 'uraian',
+        'page-4-presensi': 'presensi',
+        'page-5-penilaian': 'penilaian'
+    };
+
+    // Smooth Scroll Jump to Word Document Page with Emil Kowalski animations & URL synchronization
+    function jumpToWordPage(pageId, clickedEl, updateUrl = true) {
         const target = document.getElementById(pageId);
         if (!target) return;
         const yOffset = -80;
@@ -2613,13 +2695,47 @@
         window.scrollTo({ top: y, behavior: 'smooth' });
 
         document.querySelectorAll('.word-nav-item').forEach(item => item.classList.remove('active'));
-        if (clickedEl) clickedEl.classList.add('active');
+        if (clickedEl) {
+            clickedEl.classList.add('active');
+        } else {
+            const nav = document.querySelector(`.word-nav-item[data-target="${pageId}"]`);
+            if (nav) nav.classList.add('active');
+        }
+
+        // Add subtle focus pulse animation to section
+        document.querySelectorAll('.word-page-section').forEach(s => s.classList.remove('highlight-pulse'));
+        target.classList.add('highlight-pulse');
+        setTimeout(() => target.classList.remove('highlight-pulse'), 1200);
+
+        const tabKey = wordPageToTab[pageId] || 'cover';
+        if (updateUrl && window.history && window.history.replaceState) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tabKey);
+            window.history.replaceState(null, '', url.toString());
+        }
+
+        // Update student switcher pills to maintain active tab
+        document.querySelectorAll('.switcher-pill[data-student-id]').forEach(pill => {
+            const sid = pill.getAttribute('data-student-id');
+            pill.href = `/students/${sid}?tab=${tabKey}`;
+        });
     }
 
-    // ScrollSpy: Otomatis deteksi halaman yang aktif saat scroll dokumen
+    // ScrollSpy: Otomatis deteksi halaman yang aktif saat scroll dokumen & sync URL
     document.addEventListener('DOMContentLoaded', function() {
         const sections = document.querySelectorAll('.word-page-section');
         const navItems = document.querySelectorAll('.word-nav-item[data-target]');
+
+        // Auto jump to requested tab on initial page load
+        const urlParams = new URLSearchParams(window.location.search);
+        const requestedTab = urlParams.get('tab') || '{{ $activeTab ?? "cover" }}';
+        if (requestedTab && wordTabMap[requestedTab] && requestedTab !== 'cover') {
+            const targetId = wordTabMap[requestedTab];
+            const targetNav = document.querySelector(`.word-nav-item[data-target="${targetId}"]`);
+            setTimeout(() => {
+                jumpToWordPage(targetId, targetNav, false);
+            }, 120);
+        }
 
         window.addEventListener('scroll', function() {
             let currentSectionId = '';
@@ -2634,6 +2750,7 @@
             });
 
             if (currentSectionId) {
+                const currentTab = wordPageToTab[currentSectionId];
                 navItems.forEach(item => {
                     if (item.getAttribute('data-target') === currentSectionId) {
                         item.classList.add('active');
@@ -2641,6 +2758,18 @@
                         item.classList.remove('active');
                     }
                 });
+
+                if (currentTab && window.history && window.history.replaceState) {
+                    const url = new URL(window.location.href);
+                    if (url.searchParams.get('tab') !== currentTab) {
+                        url.searchParams.set('tab', currentTab);
+                        window.history.replaceState(null, '', url.toString());
+                        document.querySelectorAll('.switcher-pill[data-student-id]').forEach(pill => {
+                            const sid = pill.getAttribute('data-student-id');
+                            pill.href = `/students/${sid}?tab=${currentTab}`;
+                        });
+                    }
+                }
             }
         }, { passive: true });
     });

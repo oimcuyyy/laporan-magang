@@ -151,18 +151,142 @@ class WebProtectiveFirewall
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>401 Unauthorized - Manipulasi URL Terdeteksi</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.5rem; box-sizing: border-box; }
-        .card { background: #1e293b; border: 1.5px solid #ef4444; border-radius: 14px; padding: 2.25rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
-        .icon-wrap { width: 68px; height: 68px; margin: 0 auto 1.25rem auto; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444; }
-        h1 { color: #ef4444; font-size: 1.7rem; margin: 0 0 0.35rem 0; font-weight: 800; letter-spacing: -0.5px; }
-        .subtitle { color: #f87171; font-size: 1rem; margin: 0 0 1.25rem 0; font-weight: 600; }
-        .warning-banner { background: #7f1d1d; border: 2px solid #ef4444; color: #fef2f2; padding: 0.95rem 1.2rem; border-radius: 10px; font-weight: 800; font-size: 1.05rem; margin-bottom: 1.25rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); letter-spacing: 0.2px; }
-        .reason-box { background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; text-align: left; }
-        .reason-box p { margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 0.9rem; line-height: 1.5; }
-        .reason-box code { font-size: 0.8rem; color: #cbd5e1; word-break: break-all; background: #020617; padding: 0.25rem 0.5rem; border-radius: 4px; display: block; border: 1px solid #1e293b; }
-        .btn { display: inline-block; background: #2563eb; color: #ffffff; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; transition: background 0.15s ease; box-shadow: 0 4px 6px -1px rgba(37,99,235,0.4); }
-        .btn:hover { background: #1d4ed8; }
-        .meta { margin-top: 1.25rem; font-size: 0.75rem; color: #64748b; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #090d16;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        @keyframes iconPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.25);
+            }
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.92);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 18px;
+            padding: 2.25rem;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+            animation: cardEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.25rem auto;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1.5px solid rgba(239, 68, 68, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ef4444;
+            animation: iconPulse 2.8s ease-in-out infinite;
+        }
+        h1 {
+            color: #ef4444;
+            font-size: 1.7rem;
+            margin: 0 0 0.35rem 0;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: #f87171;
+            font-size: 0.95rem;
+            margin: 0 0 1.25rem 0;
+            font-weight: 600;
+        }
+        .warning-banner {
+            background: rgba(127, 29, 29, 0.85);
+            border: 1px solid #ef4444;
+            color: #fef2f2;
+            padding: 0.85rem 1.15rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.96rem;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .reason-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+        .reason-box p {
+            margin: 0 0 0.5rem 0;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .reason-box code {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            word-break: break-all;
+            background: #020617;
+            padding: 0.35rem 0.6rem;
+            border-radius: 6px;
+            display: block;
+            border: 1px solid #1e293b;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #2563eb;
+            color: #ffffff;
+            padding: 0.75rem 1.65rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-top: 0.5rem;
+            transition: transform 160ms ease-out, background 160ms ease, box-shadow 160ms ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .meta {
+            margin-top: 1.25rem;
+            font-size: 0.75rem;
+            color: #64748b;
+        }
     </style>
 </head>
 <body>
@@ -178,7 +302,8 @@ class WebProtectiveFirewall
         <p class="subtitle">Manipulasi Link / Parameter URL Terdeteksi</p>
         
         <div class="warning-banner">
-            PERINGATAN: (Jangan mengubah-ubah di web ini)
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>PERINGATAN: (Jangan mengubah-ubah di web ini)</span>
         </div>
 
         <div class="reason-box">
@@ -190,7 +315,10 @@ class WebProtectiveFirewall
             Aktivitas pengubahan tautan atau parameter URL secara manual dilarang demi menjaga integritas data rekapitulasi laporan magang SMK Negeri 20 Jakarta.
         </p>
 
-        <a href="/students" class="btn">&larr; Kembali ke Halaman Utama yang Aman</a>
+        <a href="/students" class="btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali ke Halaman Utama yang Aman
+        </a>
 
         <div class="meta">
             IP: {$escapedIp} &bull; Waktu: {$escapedTimestamp} &bull; SMK Negeri 20 Jakarta
@@ -269,15 +397,123 @@ HTML;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>401 Unauthorized - WAF Protection</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 1.5rem; box-sizing: border-box; }
-        .card { background: #1e293b; border: 1.5px solid #ef4444; border-radius: 14px; padding: 2.25rem; max-width: 560px; width: 100%; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); }
-        .icon-wrap { width: 68px; height: 68px; margin: 0 auto 1.25rem auto; background: rgba(239, 68, 68, 0.15); border: 2px solid #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #ef4444; }
-        h1 { color: #ef4444; font-size: 1.7rem; margin: 0 0 0.5rem 0; font-weight: 800; }
-        p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.25rem; }
-        .warning-banner { background: #7f1d1d; border: 2px solid #ef4444; color: #fef2f2; padding: 0.95rem 1.2rem; border-radius: 10px; font-weight: 800; font-size: 1.05rem; margin-bottom: 1.25rem; letter-spacing: 0.2px; }
-        .badge { background: #fee2e2; color: #991b1b; padding: 0.35rem 0.75rem; border-radius: 6px; font-weight: 700; font-size: 0.85rem; display: inline-block; margin: 0 4px; }
-        .btn { display: inline-block; background: #2563eb; color: #fff; padding: 0.75rem 1.75rem; border-radius: 8px; text-decoration: none; font-weight: 700; margin-top: 1.5rem; transition: background 0.15s ease; }
-        .btn:hover { background: #1d4ed8; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #090d16;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1.5rem;
+            box-sizing: border-box;
+        }
+        @keyframes cardEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        @keyframes iconPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.35);
+            }
+            50% {
+                transform: scale(1.04);
+                box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.25);
+            }
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.92);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            border-radius: 18px;
+            padding: 2.25rem;
+            max-width: 560px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05);
+            animation: cardEnter 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .icon-wrap {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.25rem auto;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1.5px solid rgba(239, 68, 68, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ef4444;
+            animation: iconPulse 2.8s ease-in-out infinite;
+        }
+        h1 {
+            color: #ef4444;
+            font-size: 1.7rem;
+            margin: 0 0 0.5rem 0;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.25rem;
+        }
+        .warning-banner {
+            background: rgba(127, 29, 29, 0.85);
+            border: 1px solid #ef4444;
+            color: #fef2f2;
+            padding: 0.85rem 1.15rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.96rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        }
+        .badge {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin: 0 4px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #2563eb;
+            color: #fff;
+            padding: 0.75rem 1.65rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            margin-top: 1.5rem;
+            transition: transform 160ms ease-out, background 160ms ease, box-shadow 160ms ease;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .btn:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
     </style>
 </head>
 <body>
@@ -292,7 +528,8 @@ HTML;
         <h1>401 Akses Ditolak oleh WAF</h1>
         
         <div class="warning-banner">
-            ⚠️ PERINGATAN: (Jangan mengubah-ubah di web ini)
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span>PERINGATAN: (Jangan mengubah-ubah di web ini)</span>
         </div>
 
         <p>Aktivitas atau parameter permintaan Anda terdeteksi mencurigakan dan telah diblokir secara otomatis oleh <strong>Web Application Firewall (WAF)</strong> demi menjaga keamanan sistem.</p>
@@ -301,7 +538,10 @@ HTML;
             <span class="badge" style="background:#fef3c7;color:#92400e;">Severity: {$escapedSeverity}</span>
         </div>
         <p style="margin-top:1rem;font-size:0.8rem;color:#64748b;">IP: {$escapedIp} &bull; Waktu: {$escapedTimestamp}</p>
-        <a href="/students" class="btn">&larr; Kembali ke Halaman Utama</a>
+        <a href="/students" class="btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali ke Halaman Utama
+        </a>
     </div>
 </body>
 </html>
