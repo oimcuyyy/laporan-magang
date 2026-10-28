@@ -193,4 +193,19 @@ class ParafUploadTest extends TestCase
         $printRes->assertSee('print-mentor-signature-img');
         $printRes->assertSee($student->mentor_signature_url, false);
     }
+
+    public function test_attendance_destroy_sheet_returns_redirect(): void
+    {
+        $student = $this->createSampleStudent();
+        // create a second sheet so count > 1
+        $sheet2 = $student->attendanceSheets()->create([
+            'month_name' => 'November 2026',
+            'total_target_days' => 5,
+        ]);
+
+        $response = $this->delete(route('attendance-sheets.destroy', [$student->id, $sheet2->id]));
+        $response->assertStatus(302);
+        $response->assertRedirect(route('students.show', ['student' => $student->id, 'tab' => 'presensi']));
+        $this->assertDatabaseMissing('attendance_sheets', ['id' => $sheet2->id]);
+    }
 }

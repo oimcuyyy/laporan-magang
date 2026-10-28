@@ -55,7 +55,7 @@ class WebProtectiveFirewall
         // 2. Kumpulkan semua input untuk inspeksi mendalam (Query, Body, Path)
         $inputs = array_merge(
             $request->query(),
-            $request->except(['_token', 'photo']), // Kecualikan CSRF token dan file biner foto
+            $request->except(['_token', 'photo', 'mentor_signature', 'mentor_signature_data']), // Kecualikan CSRF token dan file/data biner foto
             ['request_path' => $request->path()]
         );
 
@@ -102,6 +102,12 @@ class WebProtectiveFirewall
     {
         $result = '';
         foreach ($data as $key => $value) {
+            if (in_array($key, ['_token', 'photo', 'paraf_data', 'mentor_signature_data', 'paraf_file', 'mentor_signature'], true)) {
+                continue;
+            }
+            if (is_string($value) && (str_starts_with($value, 'data:image/') || strlen($value) > 2000)) {
+                continue;
+            }
             $result .= ' '.$key.'=';
             if (is_array($value)) {
                 $result .= $this->flattenPayload($value);

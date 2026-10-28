@@ -68,7 +68,7 @@ class AttendanceController extends Controller
                 $notes = ($status === 'H') ? null : ($recData['notes'] ?? null);
 
                 $base64 = $recData['paraf_data'] ?? null;
-                $file = $request->file("records.{$index}.paraf_file");
+                $file = $request->file("records.{$index}.paraf_file") ?: $request->file("records.{$recData['id']}.paraf_file");
                 $shouldRemove = ! empty($recData['remove_paraf']);
 
                 $parafPath = ParafService::processParaf(
@@ -114,6 +114,10 @@ class AttendanceController extends Controller
 
         $sheet->delete();
 
+        return redirect()->route('students.show', [
+            'student' => $student->id,
+            'tab' => 'presensi',
+        ])->with('success', 'Lembar presensi berhasil dihapus.');
     }
 
     /**

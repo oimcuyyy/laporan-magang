@@ -64,7 +64,7 @@ class ActivityController extends Controller
 
             if ($log) {
                 $base64 = $logData['paraf_data'] ?? null;
-                $file = $request->file("logs.{$index}.paraf_file");
+                $file = $request->file("logs.{$index}.paraf_file") ?: $request->file("logs.{$logData['id']}.paraf_file");
                 $shouldRemove = ! empty($logData['remove_paraf']);
 
                 $parafPath = ParafService::processParaf(
