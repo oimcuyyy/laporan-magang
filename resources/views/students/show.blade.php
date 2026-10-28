@@ -277,6 +277,134 @@
         color: #0369a1;
     }
 
+    /* Master Paraf UI Banner & Auto Badges */
+    .master-paraf-banner {
+        background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+        border: 1.5px solid #bbf7d0;
+        border-radius: 14px;
+        padding: 0.85rem 1.15rem;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+        box-shadow: 0 2px 6px rgba(22, 101, 52, 0.04);
+    }
+    .master-paraf-banner.empty {
+        background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+        border-color: #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+    .master-paraf-left {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        flex: 1;
+        min-width: 250px;
+    }
+    .master-paraf-icon-circle {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #dcfce7;
+        color: #16a34a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    .master-paraf-banner.empty .master-paraf-icon-circle {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+    .master-paraf-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+    .master-paraf-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .master-paraf-title {
+        font-size: 0.92rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 0;
+    }
+    .badge-status-active {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #15803d;
+        background: #dcfce7;
+        padding: 2px 8px;
+        border-radius: 9999px;
+    }
+    .badge-status-waiting {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #64748b;
+        background: #f1f5f9;
+        padding: 2px 8px;
+        border-radius: 9999px;
+    }
+    .master-paraf-desc {
+        font-size: 0.8rem;
+        color: #475569;
+        margin: 0;
+        line-height: 1.35;
+    }
+    .master-paraf-right {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .master-paraf-current-preview {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 3px 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .master-paraf-thumb-img {
+        max-height: 32px;
+        max-width: 90px;
+        object-fit: contain;
+        mix-blend-mode: multiply;
+    }
+    .btn-change-master-paraf {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2563eb;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 2px 4px;
+        text-decoration: underline;
+    }
+    .btn-change-master-paraf:hover {
+        color: #1d4ed8;
+    }
+    .paraf-auto-badge {
+        position: absolute;
+        bottom: 2px;
+        left: 2px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        background: #dcfce7;
+        color: #15803d;
+        padding: 1px 4px;
+        border-radius: 3px;
+        line-height: 1;
+        pointer-events: none;
+    }
+
     /* Word Document 2-Column Layout (Vertikal Navigation Pane di Kiri ala Microsoft Word) */
     .word-document-layout {
         display: grid;
@@ -2174,6 +2302,42 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Master Foto Paraf Pembimbing DU/DI (Sekali upload untuk semua lembar) -->
+                            <div class="form-group" style="grid-column:span 2;">
+                                <label class="form-label" style="display:flex;align-items:center;justify-content:space-between;">
+                                    <span>Master Foto Paraf Pembimbing DU/DI (Sekali Upload untuk Seterusnya)</span>
+                                    <span style="font-size:0.75rem;color:#16a34a;font-weight:700;background:#dcfce7;padding:2px 8px;border-radius:9999px;">★ Otomatis Ke Semua Hari & Lembar</span>
+                                </label>
+                                <div style="display:flex;align-items:center;gap:1.25rem;background:#f0fdf4;padding:0.85rem 1rem;border-radius:12px;border:1px solid #bbf7d0;">
+                                    <div id="defaultParafPreviewBox" style="width:140px;height:65px;border:1px dashed #86efac;border-radius:8px;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                        @if($student->default_paraf_url)
+                                            <img src="{{ $student->default_paraf_url }}" id="defaultParafImg" alt="Paraf Master" style="max-height:55px;max-width:125px;object-fit:contain;mix-blend-mode:multiply;">
+                                        @else
+                                            <span id="defaultParafPlaceholder" style="font-size:0.75rem;color:#94a3b8;font-style:italic;">Belum ada Paraf</span>
+                                            <img src="" id="defaultParafImg" alt="Paraf Master" style="max-height:55px;max-width:125px;object-fit:contain;mix-blend-mode:multiply;display:none;">
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <input type="hidden" name="default_paraf_data" id="defaultParafData" value="">
+                                        <input type="hidden" name="remove_default_paraf" id="removeDefaultParafInput" value="0">
+                                        <input type="file" id="defaultParafFileInput" name="default_paraf" accept="image/*" style="display:none;" onchange="handleDefaultParafSelected(this)">
+                                        
+                                        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                                            <label for="defaultParafFileInput" class="btn btn-secondary btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;background:#ffffff;border:1px solid #86efac;color:#166534;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                Upload Master Paraf
+                                            </label>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" id="btnRemoveDefaultParaf" style="{{ $student->default_paraf_url ? '' : 'display:none;' }}" onclick="removeDefaultParaf()">
+                                                Hapus
+                                            </button>
+                                        </div>
+                                        <p style="font-size:0.72rem;color:#166534;margin-top:0.35rem;margin-bottom:0;">
+                                            Siswa hanya perlu upload 1 kali. Hari ke-1, ke-2, dan seterusnya akan <strong>langsung terisi foto paraf</strong> secara otomatis.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2454,6 +2618,43 @@
     <form action="{{ route('activity-sheets.update', [$student->id, $currentSheet->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
+        <input type="hidden" name="update_default_paraf" value="1">
+
+        <!-- Master Paraf Quick Bar -->
+        <div class="master-paraf-banner {{ $student->default_paraf_url ? '' : 'empty' }}" id="masterParafBannerActivity">
+            <div class="master-paraf-left">
+                <div class="master-paraf-icon-circle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <div class="master-paraf-details">
+                    <div class="master-paraf-title-row">
+                        <h4 class="master-paraf-title">Paraf Otomatis Pembimbing DU/DI</h4>
+                        @if($student->default_paraf_url)
+                            <span class="badge-status-active" id="masterParafBadgeStatusActivity">✓ Aktif (Otomatis Terisi)</span>
+                        @else
+                            <span class="badge-status-waiting" id="masterParafBadgeStatusActivity">Belum Upload</span>
+                        @endif
+                    </div>
+                    <p class="master-paraf-desc" id="masterParafDescActivity">
+                        @if($student->default_paraf_url)
+                            Foto paraf tersimpan. Setiap kali kamu mengisi kegiatan hari berikutnya, <strong>foto paraf langsung otomatis ada</strong> tanpa perlu upload berulang-ulang!
+                        @else
+                            Cukup upload foto paraf 1x di baris pertama atau klik tombol Upload Paraf Master, maka seluruh hari berikutnya langsung otomatis terisi foto paraf!
+                        @endif
+                    </p>
+                </div>
+            </div>
+            <div class="master-paraf-right">
+                <div class="master-paraf-current-preview" id="masterParafPreviewBoxActivity" style="{{ $student->default_paraf_url ? '' : 'display:none;' }}">
+                    <img src="{{ $student->default_paraf_url ?? '' }}" id="masterParafThumbActivity" alt="Paraf Master" class="master-paraf-thumb-img">
+                    <button type="button" class="btn-change-master-paraf" onclick="triggerMasterParafUpload()" title="Ganti foto paraf master">Ganti</button>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="btnUploadMasterParafActivity" onclick="triggerMasterParafUpload()" style="{{ $student->default_paraf_url ? 'display:none;' : 'display:inline-flex;' }}font-size:0.8rem;padding:0.4rem 0.85rem;align-items:center;gap:0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload Sekali untuk Semua
+                </button>
+            </div>
+        </div>
 
         <div class="sheet-meta-bar">
             <div class="sheet-meta-field">
@@ -2514,6 +2715,9 @@
                                     <!-- Paraf Photo Preview & Upload Actions -->
                                     <div class="paraf-preview-box" id="paraf-box-log-{{ $log->id }}" style="{{ $log->paraf_url ? '' : 'display:none;' }}">
                                         <img src="{{ $log->paraf_url ?? '' }}" id="paraf-img-log-{{ $log->id }}" alt="Paraf Baris {{ $log->row_index }}" class="paraf-thumb-img">
+                                        @if($log->is_using_default_paraf)
+                                            <span class="paraf-auto-badge" id="paraf-auto-badge-log-{{ $log->id }}" title="Otomatis menggunakan foto paraf pembimbing">Auto</span>
+                                        @endif
                                         <div class="paraf-actions">
                                             <label for="paraf-file-log-{{ $log->id }}" class="btn-paraf-action" title="Ganti foto paraf">
                                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -2648,6 +2852,43 @@
     <form action="{{ route('attendance-sheets.update', [$student->id, $currentAttSheet->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
+        <input type="hidden" name="update_default_paraf" value="1">
+
+        <!-- Master Paraf Quick Bar -->
+        <div class="master-paraf-banner {{ $student->default_paraf_url ? '' : 'empty' }}" id="masterParafBannerAttendance">
+            <div class="master-paraf-left">
+                <div class="master-paraf-icon-circle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                </div>
+                <div class="master-paraf-details">
+                    <div class="master-paraf-title-row">
+                        <h4 class="master-paraf-title">Paraf Otomatis Daftar Hadir Magang</h4>
+                        @if($student->default_paraf_url)
+                            <span class="badge-status-active" id="masterParafBadgeStatusAttendance">✓ Aktif (Otomatis Terisi)</span>
+                        @else
+                            <span class="badge-status-waiting" id="masterParafBadgeStatusAttendance">Belum Upload</span>
+                        @endif
+                    </div>
+                    <p class="master-paraf-desc" id="masterParafDescAttendance">
+                        @if($student->default_paraf_url)
+                            Foto paraf tersimpan. Setiap hari presensi siswa langsung <strong>otomatis terisi foto paraf</strong> saat status hadir!
+                        @else
+                            Cukup upload foto paraf 1x di hari pertama atau klik tombol Upload Paraf Master, maka hari ke-2 dan seterusnya langsung otomatis terisi foto paraf!
+                        @endif
+                    </p>
+                </div>
+            </div>
+            <div class="master-paraf-right">
+                <div class="master-paraf-current-preview" id="masterParafPreviewBoxAttendance" style="{{ $student->default_paraf_url ? '' : 'display:none;' }}">
+                    <img src="{{ $student->default_paraf_url ?? '' }}" id="masterParafThumbAttendance" alt="Paraf Master" class="master-paraf-thumb-img">
+                    <button type="button" class="btn-change-master-paraf" onclick="triggerMasterParafUpload()" title="Ganti foto paraf master">Ganti</button>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm" id="btnUploadMasterParafAttendance" onclick="triggerMasterParafUpload()" style="{{ $student->default_paraf_url ? 'display:none;' : 'display:inline-flex;' }}font-size:0.8rem;padding:0.4rem 0.85rem;align-items:center;gap:0.35rem;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    Upload Sekali untuk Semua
+                </button>
+            </div>
+        </div>
 
         <div class="sheet-meta-bar">
             <div class="sheet-meta-field">
@@ -2722,6 +2963,9 @@
 
                                     <div class="paraf-preview-box" id="paraf-box-rec-{{ $rec->id }}" style="{{ $rec->paraf_url ? '' : 'display:none;' }}">
                                         <img src="{{ $rec->paraf_url ?? '' }}" id="paraf-img-rec-{{ $rec->id }}" alt="Paraf Hari {{ $rec->day_number }}" class="paraf-thumb-img" style="max-height:26px;">
+                                        @if($rec->is_using_default_paraf)
+                                            <span class="paraf-auto-badge" id="paraf-auto-badge-rec-{{ $rec->id }}" title="Otomatis menggunakan foto paraf pembimbing">Auto</span>
+                                        @endif
                                         <div class="paraf-actions">
                                             <label for="paraf-file-rec-{{ $rec->id }}" class="btn-paraf-action" title="Ganti foto paraf">
                                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -3430,6 +3674,41 @@
             }
             notesInput.placeholder = 'Keterangan';
         }
+
+        // Live Auto-Paraf saat status radio berubah
+        if (window.studentDefaultParafUrl) {
+            const previewBox = document.getElementById(`paraf-box-rec-${recId}`);
+            const previewImg = document.getElementById(`paraf-img-rec-${recId}`);
+            const uploadBtn = document.getElementById(`paraf-upload-btn-rec-${recId}`);
+            const removeInput = document.getElementById(`remove-paraf-rec-${recId}`);
+            const isRemoved = removeInput && removeInput.value === '1';
+
+            if (!isRemoved) {
+                if (radio.value === 'H') {
+                    if (previewBox && previewBox.style.display === 'none') {
+                        if (previewImg) previewImg.src = window.studentDefaultParafUrl;
+                        if (previewBox) previewBox.style.display = 'flex';
+                        if (uploadBtn) uploadBtn.style.display = 'none';
+
+                        let autoBadge = document.getElementById(`paraf-auto-badge-rec-${recId}`);
+                        if (!autoBadge && previewBox) {
+                            autoBadge = document.createElement('span');
+                            autoBadge.id = `paraf-auto-badge-rec-${recId}`;
+                            autoBadge.className = 'paraf-auto-badge';
+                            autoBadge.title = 'Otomatis menggunakan foto paraf pembimbing';
+                            autoBadge.textContent = 'Auto';
+                            previewBox.appendChild(autoBadge);
+                        }
+                    }
+                } else {
+                    const autoBadge = document.getElementById(`paraf-auto-badge-rec-${recId}`);
+                    if (autoBadge && previewBox) {
+                        previewBox.style.display = 'none';
+                        if (uploadBtn) uploadBtn.style.display = '';
+                    }
+                }
+            }
+        }
     }
 
     // Tambah 1 Hari Secara Asinkron (Cepat Tanpa Reload Halaman Penuh)
@@ -3845,6 +4124,8 @@
     // ==========================================
     // PARAF OPTIMIZER & SEAMLESS INK PROCESSING
     // ==========================================
+    window.studentDefaultParafUrl = @json($student->default_paraf_url);
+
     window.ParafOptimizer = {
         optimizeImage: function(file, callback) {
             if (!file || !file.type.startsWith('image/')) return;
@@ -3919,10 +4200,22 @@
             if (dataInput) dataInput.value = base64;
             if (removeInput) removeInput.value = '0';
 
-            Toast.fire({
-                icon: 'success',
-                title: 'Foto paraf berhasil diproses transparan & siap disimpan'
-            });
+            // Jika siswa belum punya master paraf, otomatis jadikan master paraf
+            if (!window.studentDefaultParafUrl) {
+                window.studentDefaultParafUrl = base64;
+                if (window.updateMasterParafUI) window.updateMasterParafUI(base64);
+                if (window.autoPropagateDefaultParaf) window.autoPropagateDefaultParaf(base64);
+
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Foto paraf berhasil diproses! Otomatis dijadikan Paraf Master dan mengisi hari-hari berikutnya.'
+                });
+            } else {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Foto paraf berhasil diproses transparan & siap disimpan'
+                });
+            }
         });
     };
 
@@ -4066,5 +4359,255 @@
             title: 'Tanda tangan mentor ditandai untuk dihapus'
         });
     };
+
+    // MASTER PARAF SYSTEM (Sekali upload untuk seterusnya)
+    window.updateMasterParafUI = function(url) {
+        // Update Uraian banner
+        const bannerAct = document.getElementById('masterParafBannerActivity');
+        const badgeAct = document.getElementById('masterParafBadgeStatusActivity');
+        const descAct = document.getElementById('masterParafDescActivity');
+        const boxAct = document.getElementById('masterParafPreviewBoxActivity');
+        const thumbAct = document.getElementById('masterParafThumbActivity');
+        const btnUploadAct = document.getElementById('btnUploadMasterParafActivity');
+
+        if (bannerAct) bannerAct.classList.remove('empty');
+        if (badgeAct) {
+            badgeAct.className = 'badge-status-active';
+            badgeAct.textContent = '✓ Aktif (Otomatis Terisi)';
+        }
+        if (descAct) descAct.innerHTML = 'Foto paraf tersimpan. Setiap kali kamu mengisi kegiatan hari berikutnya, <strong>foto paraf langsung otomatis ada</strong> tanpa perlu upload berulang-ulang!';
+        if (thumbAct) thumbAct.src = url;
+        if (boxAct) boxAct.style.display = 'flex';
+        if (btnUploadAct) btnUploadAct.style.display = 'none';
+
+        // Update Attendance banner
+        const bannerAtt = document.getElementById('masterParafBannerAttendance');
+        const badgeAtt = document.getElementById('masterParafBadgeStatusAttendance');
+        const descAtt = document.getElementById('masterParafDescAttendance');
+        const boxAtt = document.getElementById('masterParafPreviewBoxAttendance');
+        const thumbAtt = document.getElementById('masterParafThumbAttendance');
+        const btnUploadAtt = document.getElementById('btnUploadMasterParafAttendance');
+
+        if (bannerAtt) bannerAtt.classList.remove('empty');
+        if (badgeAtt) {
+            badgeAtt.className = 'badge-status-active';
+            badgeAtt.textContent = '✓ Aktif (Otomatis Terisi)';
+        }
+        if (descAtt) descAtt.innerHTML = 'Foto paraf tersimpan. Setiap hari presensi siswa langsung <strong>otomatis terisi foto paraf</strong> saat status hadir!';
+        if (thumbAtt) thumbAtt.src = url;
+        if (boxAtt) boxAtt.style.display = 'flex';
+        if (btnUploadAtt) btnUploadAtt.style.display = 'none';
+
+        // Update Identitas preview
+        const idImg = document.getElementById('defaultParafImg');
+        const idPlaceholder = document.getElementById('defaultParafPlaceholder');
+        const idRemoveBtn = document.getElementById('btnRemoveDefaultParaf');
+        if (idImg) {
+            idImg.src = url;
+            idImg.style.display = 'block';
+        }
+        if (idPlaceholder) idPlaceholder.style.display = 'none';
+        if (idRemoveBtn) idRemoveBtn.style.display = 'inline-flex';
+    };
+
+    window.autoPropagateDefaultParaf = function(url) {
+        document.querySelectorAll('.paraf-slot-container[data-type="log"]').forEach(container => {
+            const rowId = container.dataset.rowId;
+            const removeInput = document.getElementById(`remove-paraf-log-${rowId}`);
+            if (removeInput && removeInput.value === '1') return;
+
+            const previewBox = document.getElementById(`paraf-box-log-${rowId}`);
+            const previewImg = document.getElementById(`paraf-img-log-${rowId}`);
+            const uploadBtn = document.getElementById(`paraf-upload-btn-log-${rowId}`);
+
+            const tr = container.closest('tr');
+            const jobEl = tr ? tr.querySelector('textarea[name*="[job_description]"]') : null;
+            const dateEl = tr ? tr.querySelector('input[name*="[day_date]"]') : null;
+            const isFilled = (jobEl && jobEl.value.trim().length > 0) || (dateEl && dateEl.value.trim().length > 0);
+
+            if (isFilled && previewBox && previewBox.style.display === 'none') {
+                if (previewImg) previewImg.src = url;
+                if (previewBox) previewBox.style.display = 'flex';
+                if (uploadBtn) uploadBtn.style.display = 'none';
+
+                let autoBadge = document.getElementById(`paraf-auto-badge-log-${rowId}`);
+                if (!autoBadge) {
+                    autoBadge = document.createElement('span');
+                    autoBadge.id = `paraf-auto-badge-log-${rowId}`;
+                    autoBadge.className = 'paraf-auto-badge';
+                    autoBadge.title = 'Otomatis menggunakan foto paraf pembimbing';
+                    autoBadge.textContent = 'Auto';
+                    previewBox.appendChild(autoBadge);
+                }
+            }
+        });
+
+        document.querySelectorAll('.paraf-slot-container[data-type="rec"]').forEach(container => {
+            const rowId = container.dataset.rowId;
+            const removeInput = document.getElementById(`remove-paraf-rec-${rowId}`);
+            if (removeInput && removeInput.value === '1') return;
+
+            const previewBox = document.getElementById(`paraf-box-rec-${rowId}`);
+            const previewImg = document.getElementById(`paraf-img-rec-${rowId}`);
+            const uploadBtn = document.getElementById(`paraf-upload-btn-rec-${rowId}`);
+
+            const tr = container.closest('tr');
+            const radioH = tr ? tr.querySelector('input[type="radio"][value="H"]') : null;
+            const isHadir = radioH && radioH.checked;
+
+            if (isHadir && previewBox && previewBox.style.display === 'none') {
+                if (previewImg) previewImg.src = url;
+                if (previewBox) previewBox.style.display = 'flex';
+                if (uploadBtn) uploadBtn.style.display = 'none';
+
+                let autoBadge = document.getElementById(`paraf-auto-badge-rec-${rowId}`);
+                if (!autoBadge) {
+                    autoBadge = document.createElement('span');
+                    autoBadge.id = `paraf-auto-badge-rec-${rowId}`;
+                    autoBadge.className = 'paraf-auto-badge';
+                    autoBadge.title = 'Otomatis menggunakan foto paraf pembimbing';
+                    autoBadge.textContent = 'Auto';
+                    previewBox.appendChild(autoBadge);
+                }
+            }
+        });
+    };
+
+    window.triggerMasterParafUpload = function() {
+        let input = document.getElementById('globalMasterParafFileInput');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file';
+            input.id = 'globalMasterParafFileInput';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            input.onchange = function() { window.handleMasterParafSelected(this); };
+            document.body.appendChild(input);
+        }
+        input.click();
+    };
+
+    window.handleMasterParafSelected = function(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, async function(base64) {
+            window.studentDefaultParafUrl = base64;
+            window.updateMasterParafUI(base64);
+            window.autoPropagateDefaultParaf(base64);
+
+            Toast.fire({
+                icon: 'info',
+                title: 'Menyimpan Paraf Master ke database...'
+            });
+
+            try {
+                const resp = await fetch("{{ route('students.master-paraf', $student->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        default_paraf_data: base64,
+                        apply_to_all_existing: 1
+                    })
+                });
+                const res = await resp.json();
+                if (res.success) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: '✓ Paraf Master tersimpan! Semua kegiatan & daftar hadir otomatis terisi foto paraf.'
+                    });
+                }
+            } catch (err) {
+                console.warn('Gagal async save master paraf:', err);
+            }
+        });
+    };
+
+    window.handleDefaultParafSelected = function(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, function(base64) {
+            window.studentDefaultParafUrl = base64;
+            window.updateMasterParafUI(base64);
+            window.autoPropagateDefaultParaf(base64);
+
+            const dataInput = document.getElementById('defaultParafData');
+            const removeInput = document.getElementById('removeDefaultParafInput');
+            if (dataInput) dataInput.value = base64;
+            if (removeInput) removeInput.value = '0';
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Foto paraf master diproses transparan & siap disimpan'
+            });
+        });
+    };
+
+    window.removeDefaultParaf = function() {
+        window.studentDefaultParafUrl = null;
+        const img = document.getElementById('defaultParafImg');
+        const placeholder = document.getElementById('defaultParafPlaceholder');
+        const removeBtn = document.getElementById('btnRemoveDefaultParaf');
+        const dataInput = document.getElementById('defaultParafData');
+        const removeInput = document.getElementById('removeDefaultParafInput');
+        const fileInput = document.getElementById('defaultParafFileInput');
+
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'inline';
+        if (removeBtn) removeBtn.style.display = 'none';
+        if (dataInput) dataInput.value = '';
+        if (removeInput) removeInput.value = '1';
+        if (fileInput) fileInput.value = '';
+
+        Toast.fire({
+            icon: 'info',
+            title: 'Master paraf ditandai untuk dihapus'
+        });
+    };
+
+    // Live auto-fill listener: ketika siswa mengetik kegiatan atau tanggal pada baris hari berikutnya
+    document.addEventListener('input', function(e) {
+        if (!window.studentDefaultParafUrl) return;
+        const target = e.target;
+        if (!target.matches('textarea[name*="[job_description]"], input[name*="[day_date]"]')) return;
+
+        const row = target.closest('tr');
+        if (!row) return;
+
+        const container = row.querySelector('.paraf-slot-container[data-type="log"]');
+        if (!container) return;
+
+        const rowId = container.dataset.rowId;
+        const removeInput = document.getElementById(`remove-paraf-log-${rowId}`);
+        if (removeInput && removeInput.value === '1') return;
+
+        const previewBox = document.getElementById(`paraf-box-log-${rowId}`);
+        const previewImg = document.getElementById(`paraf-img-log-${rowId}`);
+        const uploadBtn = document.getElementById(`paraf-upload-btn-log-${rowId}`);
+
+        if (previewBox && previewBox.style.display === 'none') {
+            if (target.value.trim().length > 0) {
+                previewImg.src = window.studentDefaultParafUrl;
+                previewBox.style.display = 'flex';
+                if (uploadBtn) uploadBtn.style.display = 'none';
+
+                let autoBadge = document.getElementById(`paraf-auto-badge-log-${rowId}`);
+                if (!autoBadge) {
+                    autoBadge = document.createElement('span');
+                    autoBadge.id = `paraf-auto-badge-log-${rowId}`;
+                    autoBadge.className = 'paraf-auto-badge';
+                    autoBadge.title = 'Otomatis menggunakan foto paraf pembimbing';
+                    autoBadge.textContent = 'Auto';
+                    previewBox.appendChild(autoBadge);
+                }
+            }
+        }
+    });
 </script>
 @endpush

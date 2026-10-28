@@ -57,6 +57,8 @@ class AttendanceController extends Controller
 
         $sheet->update(['month_name' => $validated['month_name']]);
 
+        $firstNewParaf = null;
+
         foreach ($validated['records'] as $index => $recData) {
             $record = AttendanceRecord::where('id', $recData['id'])
                 ->where('attendance_sheet_id', $sheet->id)
@@ -71,13 +73,22 @@ class AttendanceController extends Controller
                 $file = $request->file("records.{$index}.paraf_file") ?: $request->file("records.{$recData['id']}.paraf_file");
                 $shouldRemove = ! empty($recData['remove_paraf']);
 
-                $parafPath = ParafService::processParaf(
-                    base64Data: $base64,
-                    uploadedFile: $file,
-                    shouldRemove: $shouldRemove,
-                    currentPath: $record->paraf_path,
-                    prefix: 'attendance_paraf'
-                );
+                if ($shouldRemove) {
+                    ParafService::deleteParaf($record->paraf_path);
+                    $parafPath = $student->default_paraf_path ? 'none' : null;
+                } else {
+                    $parafPath = ParafService::processParaf(
+                        base64Data: $base64,
+                        uploadedFile: $file,
+                        shouldRemove: false,
+                        currentPath: $record->paraf_path,
+                        prefix: 'attendance_paraf'
+                    );
+
+                    if (($base64 || $file) && $parafPath && $parafPath !== 'none') {
+                        $firstNewParaf = $parafPath;
+                    }
+                }
 
                 $record->update([
                     'day_date' => $recData['day_date'] ?? null,
@@ -87,6 +98,11 @@ class AttendanceController extends Controller
                     'is_signed' => isset($recData['is_signed']) ? (bool) $recData['is_signed'] : false,
                 ]);
             }
+        }
+
+        // Jika siswa belum punya paraf default atau diminta update default, jadikan paraf ini master
+        if ($firstNewParaf && (! $student->default_paraf_path || $request->boolean('update_default_paraf', true))) {
+            $student->update(['default_paraf_path' => $firstNewParaf]);
         }
 
         // Kalkulasi ulang rekapitulasi kehadiran (Jumlah Hadir, Sakit, Izin, Alpa)

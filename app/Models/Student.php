@@ -41,6 +41,7 @@ class Student extends Model
         'mentor_name',
         'photo_path',
         'mentor_signature_path',
+        'default_paraf_path',
     ];
 
     public function activitySheets(): HasMany
@@ -78,5 +79,18 @@ class Student extends Model
         }
 
         return asset('storage/'.$this->mentor_signature_path);
+    }
+
+    public function getDefaultParafUrlAttribute(): ?string
+    {
+        if (! $this->default_paraf_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->default_paraf_path, 'data:image/') || str_starts_with($this->default_paraf_path, 'http')) {
+            return $this->default_paraf_path;
+        }
+
+        return asset('storage/'.$this->default_paraf_path);
     }
 }

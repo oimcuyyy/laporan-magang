@@ -68,6 +68,8 @@ class ActivitySheetApiController extends Controller
 
         $sheet->update(['month_name' => $validated['month_name']]);
 
+        $firstNewParaf = null;
+
         foreach ($validated['logs'] as $logData) {
             $log = ActivityLog::where('id', $logData['id'])
                 ->where('activity_sheet_id', $sheet->id)
@@ -77,12 +79,21 @@ class ActivitySheetApiController extends Controller
                 $base64 = $logData['paraf_data'] ?? null;
                 $shouldRemove = ! empty($logData['remove_paraf']);
 
-                $parafPath = ParafService::processParaf(
-                    base64Data: $base64,
-                    shouldRemove: $shouldRemove,
-                    currentPath: $log->paraf_path,
-                    prefix: 'activity_paraf'
-                );
+                if ($shouldRemove) {
+                    ParafService::deleteParaf($log->paraf_path);
+                    $parafPath = $student->default_paraf_path ? 'none' : null;
+                } else {
+                    $parafPath = ParafService::processParaf(
+                        base64Data: $base64,
+                        shouldRemove: false,
+                        currentPath: $log->paraf_path,
+                        prefix: 'activity_paraf'
+                    );
+
+                    if ($base64 && $parafPath && $parafPath !== 'none') {
+                        $firstNewParaf = $parafPath;
+                    }
+                }
 
                 $log->update([
                     'day_date' => $logData['day_date'] ?? null,
@@ -93,6 +104,10 @@ class ActivitySheetApiController extends Controller
                     'is_approved' => ! empty($logData['is_approved']),
                 ]);
             }
+        }
+
+        if ($firstNewParaf && (! $student->default_paraf_path || $request->boolean('update_default_paraf', true))) {
+            $student->update(['default_paraf_path' => $firstNewParaf]);
         }
 
         $sheet->load('activityLogs');

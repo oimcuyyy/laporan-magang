@@ -102,7 +102,7 @@ class WebProtectiveFirewall
     {
         $result = '';
         foreach ($data as $key => $value) {
-            if (in_array($key, ['_token', 'photo', 'paraf_data', 'mentor_signature_data', 'paraf_file', 'mentor_signature'], true)) {
+            if (in_array($key, ['_token', 'photo', 'paraf_data', 'mentor_signature_data', 'paraf_file', 'mentor_signature', 'default_paraf_data', 'default_paraf', 'remove_default_paraf'], true)) {
                 continue;
             }
             if (is_string($value) && (str_starts_with($value, 'data:image/') || strlen($value) > 2000)) {

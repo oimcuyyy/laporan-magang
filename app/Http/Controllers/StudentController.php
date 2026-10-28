@@ -276,9 +276,70 @@ class StudentController extends Controller
             );
         }
 
+        $defaultParafBase64 = $validated['default_paraf_data'] ?? null;
+        $defaultParafFile = $request->file('default_paraf');
+        $removeDefaultParaf = ! empty($validated['remove_default_paraf']);
+
+        if ($defaultParafBase64 || $defaultParafFile || $removeDefaultParaf) {
+            $validated['default_paraf_path'] = ParafService::processParaf(
+                base64Data: $defaultParafBase64,
+                uploadedFile: $defaultParafFile,
+                shouldRemove: $removeDefaultParaf,
+                currentPath: $student->default_paraf_path,
+                prefix: 'master_paraf'
+            );
+        }
+
         $student->update($validated);
 
         return redirect()->route('students.show', [$student->id, 'tab' => 'identitas'])->with('success', 'Data Identitas Peserta berhasil diperbarui!');
+    }
+
+    /**
+     * Update atau Simpan Master Foto Paraf Pembimbing DU/DI (Sekali upload untuk semua hari)
+     */
+    public function updateMasterParaf(Request $request, Student $student): RedirectResponse|JsonResponse
+    {
+        $request->validate([
+            'default_paraf' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'default_paraf_data' => 'nullable|string',
+            'remove_default_paraf' => 'nullable|boolean',
+            'apply_to_all_existing' => 'nullable|boolean',
+        ]);
+
+        $base64 = $request->input('default_paraf_data');
+        $file = $request->file('default_paraf');
+        $remove = $request->boolean('remove_default_paraf');
+
+        $parafPath = ParafService::processParaf(
+            base64Data: $base64,
+            uploadedFile: $file,
+            shouldRemove: $remove,
+            currentPath: $student->default_paraf_path,
+            prefix: 'master_paraf'
+        );
+
+        $student->update(['default_paraf_path' => $parafPath]);
+
+        if ($request->boolean('apply_to_all_existing') && $parafPath) {
+            foreach ($student->activitySheets as $actSheet) {
+                $actSheet->activityLogs()->where('paraf_path', 'none')->orWhereNull('paraf_path')->update(['paraf_path' => $parafPath]);
+            }
+            foreach ($student->attendanceSheets as $attSheet) {
+                $attSheet->records()->where('paraf_path', 'none')->orWhereNull('paraf_path')->update(['paraf_path' => $parafPath]);
+            }
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Paraf master pembimbing berhasil disimpan! Semua hari berikutnya otomatis terisi foto paraf.',
+                'paraf_url' => $student->default_paraf_url,
+                'paraf_path' => $student->default_paraf_path,
+            ]);
+        }
+
+        return back()->with('success', 'Master Foto Paraf berhasil disimpan! Semua lembar kegiatan & daftar hadir otomatis terisi foto paraf.');
     }
 
     /**

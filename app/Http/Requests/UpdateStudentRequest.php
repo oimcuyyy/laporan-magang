@@ -45,6 +45,9 @@ class UpdateStudentRequest extends FormRequest
             'mentor_signature' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'mentor_signature_data' => 'nullable|string',
             'remove_mentor_signature' => 'nullable|boolean',
+            'default_paraf' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'default_paraf_data' => 'nullable|string',
+            'remove_default_paraf' => 'nullable|boolean',
         ];
     }
 }

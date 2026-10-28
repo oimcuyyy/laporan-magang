@@ -69,6 +69,8 @@ class AttendanceSheetApiController extends Controller
 
         $sheet->update(['month_name' => $validated['month_name']]);
 
+        $firstNewParaf = null;
+
         foreach ($validated['records'] as $recData) {
             $record = AttendanceRecord::where('id', $recData['id'])
                 ->where('attendance_sheet_id', $sheet->id)
@@ -78,12 +80,21 @@ class AttendanceSheetApiController extends Controller
                 $base64 = $recData['paraf_data'] ?? null;
                 $shouldRemove = ! empty($recData['remove_paraf']);
 
-                $parafPath = ParafService::processParaf(
-                    base64Data: $base64,
-                    shouldRemove: $shouldRemove,
-                    currentPath: $record->paraf_path,
-                    prefix: 'attendance_paraf'
-                );
+                if ($shouldRemove) {
+                    ParafService::deleteParaf($record->paraf_path);
+                    $parafPath = $student->default_paraf_path ? 'none' : null;
+                } else {
+                    $parafPath = ParafService::processParaf(
+                        base64Data: $base64,
+                        shouldRemove: false,
+                        currentPath: $record->paraf_path,
+                        prefix: 'attendance_paraf'
+                    );
+
+                    if ($base64 && $parafPath && $parafPath !== 'none') {
+                        $firstNewParaf = $parafPath;
+                    }
+                }
 
                 $record->update([
                     'day_date' => $recData['day_date'] ?? null,
@@ -93,6 +104,10 @@ class AttendanceSheetApiController extends Controller
                     'is_signed' => ! empty($recData['is_signed']),
                 ]);
             }
+        }
+
+        if ($firstNewParaf && (! $student->default_paraf_path || $request->boolean('update_default_paraf', true))) {
+            $student->update(['default_paraf_path' => $firstNewParaf]);
         }
 
         $sheet->recalculateTotals();

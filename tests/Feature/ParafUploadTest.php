@@ -208,4 +208,100 @@ class ParafUploadTest extends TestCase
         $response->assertRedirect(route('students.show', ['student' => $student->id, 'tab' => 'presensi']));
         $this->assertDatabaseMissing('attendance_sheets', ['id' => $sheet2->id]);
     }
+
+    public function test_first_uploaded_paraf_becomes_default_and_autofills_subsequent_days(): void
+    {
+        $student = $this->createSampleStudent();
+        $sheet = $student->activitySheets()->first();
+        $log1 = $sheet->activityLogs()->where('row_index', 1)->first();
+        $log2 = $sheet->activityLogs()->where('row_index', 2)->first();
+
+        $fakeBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+        // Siswa hanya upload di baris 1
+        $payload = [
+            'month_name' => 'Oktober 2026',
+            'logs' => [
+                [
+                    'id' => $log1->id,
+                    'day_date' => 'Senin, 05-10-2026',
+                    'division' => 'IT Software',
+                    'job_description' => 'Membuat fitur paraf hari pertama',
+                    'paraf_data' => $fakeBase64,
+                ],
+            ],
+        ];
+
+        $response = $this->put(route('activity-sheets.update', [$student->id, $sheet->id]), $payload);
+        $response->assertSessionHasNoErrors();
+
+        // 1. Student otomatis punya default_paraf_path
+        $student->refresh();
+        $this->assertNotNull($student->default_paraf_path);
+        $this->assertNotNull($student->default_paraf_url);
+
+        // 2. Baris ke-2 (hari kedua) otomatis langsung punya foto paraf tanpa perlu upload lagi!
+        $log2->refresh();
+        $this->assertTrue($log2->is_using_default_paraf);
+        $this->assertEquals($student->default_paraf_url, $log2->paraf_url);
+
+        // 3. Daftar hadir / presensi otomatis langsung punya foto paraf pada status Hadir!
+        $attSheet = $student->attendanceSheets()->first();
+        $rec1 = $attSheet->records()->where('day_number', 1)->first();
+        $this->assertTrue($rec1->is_using_default_paraf);
+        $this->assertEquals($student->default_paraf_url, $rec1->paraf_url);
+    }
+
+    public function test_master_paraf_can_be_saved_via_dedicated_endpoint(): void
+    {
+        $student = $this->createSampleStudent();
+        $fakeBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+        $response = $this->post(route('students.master-paraf', $student->id), [
+            'default_paraf_data' => $fakeBase64,
+            'apply_to_all_existing' => 1,
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $student->refresh();
+        $this->assertNotNull($student->default_paraf_path);
+
+        $log1 = $student->activitySheets()->first()->activityLogs()->first();
+        $this->assertNotNull($log1->paraf_url);
+    }
+
+    public function test_explicit_removal_marks_none_and_does_not_inherit_default(): void
+    {
+        $student = $this->createSampleStudent();
+        $student->update(['default_paraf_path' => 'data:image/png;base64,master-sample']);
+
+        $sheet = $student->activitySheets()->first();
+        $log1 = $sheet->activityLogs()->where('row_index', 1)->first();
+        $log2 = $sheet->activityLogs()->where('row_index', 2)->first();
+
+        // User menghapus paraf di baris 1
+        $payload = [
+            'month_name' => 'Oktober 2026',
+            'logs' => [
+                [
+                    'id' => $log1->id,
+                    'day_date' => 'Senin, 05-10-2026',
+                    'division' => 'IT Software',
+                    'job_description' => 'Khusus baris ini tidak ada paraf',
+                    'remove_paraf' => 1,
+                ],
+            ],
+        ];
+
+        $response = $this->put(route('activity-sheets.update', [$student->id, $sheet->id]), $payload);
+        $response->assertSessionHasNoErrors();
+
+        $log1->refresh();
+        $this->assertEquals('none', $log1->paraf_path);
+        $this->assertNull($log1->paraf_url);
+
+        // Baris ke-2 tetap menggunakan default paraf
+        $log2->refresh();
+        $this->assertNotNull($log2->paraf_url);
+    }
 }
