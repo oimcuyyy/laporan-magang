@@ -494,14 +494,20 @@ window.saveActivitySheet = async function(sheetId) {
     const currentSheet = (s.activity_sheets || []).find(sh => sh.id === sheetId);
     if (!currentSheet) return;
 
-    const logsPayload = (currentSheet.activity_logs || []).map(log => ({
-        id: log.id,
-        day_date: document.getElementById(`act_date_${log.id}`).value,
-        division: document.getElementById(`act_div_${log.id}`).value,
-        job_description: document.getElementById(`act_desc_${log.id}`).value,
-        supervisor_note: document.getElementById(`act_note_${log.id}`).value,
-        is_approved: document.getElementById(`act_app_${log.id}`).checked
-    }));
+    const logsPayload = (currentSheet.activity_logs || []).map(log => {
+        const parafDataEl = document.getElementById(`act_paraf_data_${log.id}`);
+        const removeParafEl = document.getElementById(`act_remove_paraf_${log.id}`);
+        return {
+            id: log.id,
+            day_date: document.getElementById(`act_date_${log.id}`)?.value || '',
+            division: document.getElementById(`act_div_${log.id}`)?.value || '',
+            job_description: document.getElementById(`act_desc_${log.id}`)?.value || '',
+            supervisor_note: document.getElementById(`act_note_${log.id}`)?.value || '',
+            is_approved: document.getElementById(`act_app_${log.id}`)?.checked || false,
+            paraf_data: parafDataEl ? parafDataEl.value : null,
+            remove_paraf: removeParafEl ? (removeParafEl.value === '1') : false,
+        };
+    });
 
     const monthName = document.getElementById('act_month_name').value;
 
@@ -718,11 +724,15 @@ window.saveAttendanceSheet = async function(sheetId) {
 
     const recordsPayload = (currentSheet.records || []).map(rec => {
         const checkedRadio = document.querySelector(`input[name="status_${rec.id}"]:checked`);
+        const parafDataEl = document.getElementById(`att_paraf_data_${rec.id}`);
+        const removeParafEl = document.getElementById(`att_remove_paraf_${rec.id}`);
         return {
             id: rec.id,
-            day_date: document.getElementById(`att_date_${rec.id}`).value,
+            day_date: document.getElementById(`att_date_${rec.id}`)?.value || '',
             status: checkedRadio ? checkedRadio.value : null,
-            notes: document.getElementById(`att_note_${rec.id}`).value
+            notes: document.getElementById(`att_note_${rec.id}`)?.value || '',
+            paraf_data: parafDataEl ? parafDataEl.value : null,
+            remove_paraf: removeParafEl ? (removeParafEl.value === '1') : false,
         };
     });
 

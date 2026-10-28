@@ -446,6 +446,49 @@
         }
 
         /* ---------------------------------------------------- */
+        /* PARAF & TANDA TANGAN CETAK (SEAMLESS INK RENDERING)  */
+        /* ---------------------------------------------------- */
+        .print-paraf-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            min-height: 24px;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        .print-paraf-img {
+            display: block;
+            margin: 0 auto;
+            max-height: 46px;
+            max-width: 95px;
+            object-fit: contain;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            mix-blend-mode: multiply !important;
+            filter: contrast(1.2) brightness(0.95);
+        }
+
+        .print-mentor-signature-img {
+            display: block;
+            margin: 0 auto;
+            max-height: 52px;
+            max-width: 140px;
+            object-fit: contain;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            mix-blend-mode: multiply !important;
+            filter: contrast(1.2) brightness(0.95);
+        }
+
+        /* ---------------------------------------------------- */
         /* LEMBAR 4: DAFTAR HADIR MAGANG                        */
         /* ---------------------------------------------------- */
         .table-attendance {
@@ -744,11 +787,16 @@
                         <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;">{{ $log ? $log->day_date : '' }}</td>
                         <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;">{{ $log ? $log->division : '' }}</td>
                         <td style="vertical-align:top;padding-top:6px;font-size:8.8pt;word-break:break-word;line-height:1.35;">{{ $log ? $log->job_description : '' }}</td>
-                        <td style="text-align:center;font-size:8pt;vertical-align:top;padding-top:6px;">
-                            @if($log && $log->supervisor_note)
-                                {{ $log->supervisor_note }}
+                        <td style="text-align:center;font-size:8pt;vertical-align:middle;padding:4px 3px;">
+                            @if($log && $log->paraf_url)
+                                <div class="print-paraf-wrapper">
+                                    <img src="{{ $log->paraf_url }}" alt="Paraf" class="print-paraf-img">
+                                </div>
                             @endif
-                            @if($log && $log->is_approved)
+                            @if($log && $log->supervisor_note)
+                                <div style="font-size:7.5pt;color:#334155;margin-top:2px;">{{ $log->supervisor_note }}</div>
+                            @endif
+                            @if($log && $log->is_approved && ! ($log && $log->paraf_url))
                                 <div style="font-weight:700;color:#065f46;margin-top:2px;">[Disetujui]</div>
                             @endif
                         </td>
@@ -777,6 +825,7 @@
                     <th rowspan="2" style="width:45px;">Hadir</th>
                     <th colspan="3" style="width:85px;">Tidak Hadir</th>
                     <th rowspan="2">Keterangan</th>
+                    <th rowspan="2" style="width:65px;">Paraf</th>
                 </tr>
                 <tr>
                     <th style="width:28px;">S</th>
@@ -794,6 +843,15 @@
                         <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'I' ? '&#10003;' : '' !!}</td>
                         <td style="text-align:center;font-weight:700;font-size:11pt;">{!! $record->status === 'A' ? '&#10003;' : '' !!}</td>
                         <td>{{ $record->notes }}</td>
+                        <td style="text-align:center;padding:1px 2px;">
+                            @if($record->paraf_url)
+                                <div class="print-paraf-wrapper">
+                                    <img src="{{ $record->paraf_url }}" alt="Paraf" class="print-paraf-img" style="max-height:22px;">
+                                </div>
+                            @elseif($record->is_signed)
+                                <span style="font-size:8pt;font-weight:700;color:#065f46;">&#10003;</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
             </tbody>
@@ -828,7 +886,11 @@
 
             <div style="text-align:center;min-width:180px;">
                 <p>Pembimbing Industri</p>
-                <div style="height:14mm;"></div>
+                <div style="height:14mm;display:flex;align-items:center;justify-content:center;">
+                    @if($student->mentor_signature_url)
+                        <img src="{{ $student->mentor_signature_url }}" alt="Tanda Tangan Pembimbing" class="print-mentor-signature-img">
+                    @endif
+                </div>
                 <p style="border-top:1px dotted #000000;display:inline-block;padding-top:2px;min-width:160px;">
                     {{ $student->mentor_name ?: '..........................................' }}
                 </p>
@@ -961,7 +1023,11 @@
             <div style="text-align:center;min-width:200px;font-size:9pt;">
                 <p>{{ $eval->evaluation_date ?: ('Jakarta, ' . $todayIndo) }}</p>
                 <p style="margin-top:2px;">Pembimbing Dunia Industri</p>
-                <div style="height:15mm;"></div>
+                <div style="height:15mm;display:flex;align-items:center;justify-content:center;">
+                    @if($student->mentor_signature_url)
+                        <img src="{{ $student->mentor_signature_url }}" alt="Tanda Tangan Pembimbing" class="print-mentor-signature-img">
+                    @endif
+                </div>
                 <p style="border-top:1px dotted #000000;display:inline-block;padding-top:2px;min-width:170px;font-weight:700;">
                     {{ $eval->mentor_name ?: $student->mentor_name ?: '..........................................' }}
                 </p>

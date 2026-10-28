@@ -29,6 +29,10 @@ class UpdateActivitySheetRequest extends FormRequest
             'logs.*.job_description' => 'nullable|string',
             'logs.*.supervisor_note' => 'nullable|string|max:100',
             'logs.*.is_approved' => 'nullable|boolean',
+            'logs.*.paraf_data' => 'nullable|string',
+            'logs.*.paraf_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'logs.*.remove_paraf' => 'nullable|boolean',
+            'logs.*.paraf_path' => 'nullable|string',
         ];
     }
 }

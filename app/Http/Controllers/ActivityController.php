@@ -6,6 +6,7 @@ use App\Http\Requests\UpdateActivitySheetRequest;
 use App\Models\ActivityLog;
 use App\Models\ActivitySheet;
 use App\Models\Student;
+use App\Services\ParafService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -56,18 +57,31 @@ class ActivityController extends Controller
 
         $sheet->update(['month_name' => $validated['month_name']]);
 
-        foreach ($validated['logs'] as $logData) {
+        foreach ($validated['logs'] as $index => $logData) {
             $log = ActivityLog::where('id', $logData['id'])
                 ->where('activity_sheet_id', $sheet->id)
                 ->first();
 
             if ($log) {
+                $base64 = $logData['paraf_data'] ?? null;
+                $file = $request->file("logs.{$index}.paraf_file");
+                $shouldRemove = ! empty($logData['remove_paraf']);
+
+                $parafPath = ParafService::processParaf(
+                    base64Data: $base64,
+                    uploadedFile: $file,
+                    shouldRemove: $shouldRemove,
+                    currentPath: $log->paraf_path,
+                    prefix: 'activity_paraf'
+                );
+
                 $log->update([
                     'day_date' => $logData['day_date'] ?? null,
                     'division' => $logData['division'] ?? null,
                     'job_description' => $logData['job_description'] ?? null,
                     'supervisor_note' => $logData['supervisor_note'] ?? null,
-                    'is_approved' => isset($logData['is_approved']) ? (bool)$logData['is_approved'] : false,
+                    'paraf_path' => $parafPath,
+                    'is_approved' => isset($logData['is_approved']) ? (bool) $logData['is_approved'] : false,
                 ]);
             }
         }

@@ -17,7 +17,7 @@ class UpdateStudentRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:150',
-            'nis' => 'required|string|max:30|unique:students,nis,' . $studentId,
+            'nis' => 'required|string|max:30|unique:students,nis,'.$studentId,
             'nisn' => 'nullable|string|max:30',
             'class' => 'nullable|string|max:50',
             'major' => 'nullable|string|max:100',
@@ -42,6 +42,9 @@ class UpdateStudentRequest extends FormRequest
             'teacher_phone' => 'nullable|string|max:30',
             'mentor_name' => 'nullable|string|max:100',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'mentor_signature' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'mentor_signature_data' => 'nullable|string',
+            'remove_mentor_signature' => 'nullable|boolean',
         ];
     }
 }

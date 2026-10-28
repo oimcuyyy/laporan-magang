@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS public.students (
     teacher_phone VARCHAR(30) DEFAULT '0858-8192-1976',
     mentor_name VARCHAR(100) DEFAULT 'Sujatmo, S.Sos',
     photo_path VARCHAR(255),
+    mentor_signature_path TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS public.activity_logs (
     division VARCHAR(100),       -- Contoh: 'Perpanjang Makam'
     job_description TEXT,        -- Uraian Pekerjaan Harian
     supervisor_note VARCHAR(100),
+    paraf_path TEXT,
     is_approved BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -97,6 +99,7 @@ CREATE TABLE IF NOT EXISTS public.attendance_records (
     status CHAR(1), -- 'H' (Hadir), 'S' (Sakit), 'I' (Izin), 'A' (Alpa)
     notes VARCHAR(150),
     is_signed BOOLEAN DEFAULT FALSE,
+    paraf_path TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(attendance_sheet_id, day_number)

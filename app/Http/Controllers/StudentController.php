@@ -6,6 +6,7 @@ use App\Http\Middleware\WebProtectiveFirewall;
 use App\Http\Requests\QuickUpdateCoverRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Student;
+use App\Services\ParafService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -259,6 +260,20 @@ class StudentController extends Controller
                 Storage::disk('public')->delete($student->photo_path);
             }
             $validated['photo_path'] = $request->file('photo')->store('photos', 'public');
+        }
+
+        $mentorSigBase64 = $validated['mentor_signature_data'] ?? null;
+        $mentorSigFile = $request->file('mentor_signature');
+        $removeMentorSig = ! empty($validated['remove_mentor_signature']);
+
+        if ($mentorSigBase64 || $mentorSigFile || $removeMentorSig) {
+            $validated['mentor_signature_path'] = ParafService::processParaf(
+                base64Data: $mentorSigBase64,
+                uploadedFile: $mentorSigFile,
+                shouldRemove: $removeMentorSig,
+                currentPath: $student->mentor_signature_path,
+                prefix: 'mentor_sig'
+            );
         }
 
         $student->update($validated);

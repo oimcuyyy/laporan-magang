@@ -27,14 +27,14 @@ return new class extends Migration
             $table->string('religion', 30)->default('Islam');
             $table->text('student_address')->nullable();
             $table->string('student_phone', 30)->nullable();
-            
+
             // Data Orang Tua
             $table->string('father_name', 100)->nullable();
             $table->string('father_phone', 30)->nullable();
             $table->string('mother_name', 100)->nullable();
             $table->string('mother_phone', 30)->nullable();
             $table->text('parent_address')->nullable();
-            
+
             // Data Sekolah & Instansi DU/DI
             $table->string('school_name', 150)->default('SMK Negeri 20 Jakarta');
             $table->text('school_address')->nullable();
@@ -44,7 +44,7 @@ return new class extends Migration
             $table->string('teacher_phone', 30)->nullable();
             $table->string('mentor_name', 100)->nullable();
             $table->string('photo_path')->nullable();
-            
+
             $table->timestamps();
         });
 

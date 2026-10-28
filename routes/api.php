@@ -5,19 +5,23 @@ use App\Http\Controllers\Api\AttendanceSheetApiController;
 use App\Http\Controllers\Api\EvaluationApiController;
 use App\Http\Controllers\Api\StudentApiController;
 use App\Http\Controllers\Api\WafApiController;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     // API Health Check (Aman dari Information Disclosure: tidak mengekspos db driver, kredensial, atau error trace)
     Route::get('health', function () {
         try {
-            \Illuminate\Support\Facades\DB::connection()->getPdo();
+            DB::connection()->getPdo();
+
             return response()->json([
                 'status' => 'UP',
                 'timestamp' => now()->toIso8601String(),
             ]);
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error('API Health check database error: ' . $e->getMessage());
+        } catch (Throwable $e) {
+            Log::error('API Health check database error: '.$e->getMessage());
+
             return response()->json([
                 'status' => 'DOWN',
                 'timestamp' => now()->toIso8601String(),

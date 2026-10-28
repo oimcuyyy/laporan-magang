@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class TestSupabaseConnection extends Command
@@ -27,9 +26,9 @@ class TestSupabaseConnection extends Command
      */
     public function handle()
     {
-        $this->info("=================================================");
-        $this->info("   PENGUJIAN KONEKSI SUPABASE LAPORAN MAGANG   ");
-        $this->info("=================================================");
+        $this->info('=================================================');
+        $this->info('   PENGUJIAN KONEKSI SUPABASE LAPORAN MAGANG   ');
+        $this->info('=================================================');
 
         $url = env('SUPABASE_URL', 'https://mpbeyneczxznhsaqnwxg.supabase.co');
         $key = env('SUPABASE_KEY', 'sb_publishable_RwCdV78MsUPVxVnJwG6tUw_nXtx0wPc');
@@ -49,19 +48,19 @@ class TestSupabaseConnection extends Command
             if ($response->successful()) {
                 $this->info("   [OK] REST API Terhubung & Tabel 'students' aktif di Supabase!");
                 $data = $response->json();
-                $this->line("   Jumlah data siswa di Supabase: " . count($data));
+                $this->line('   Jumlah data siswa di Supabase: '.count($data));
             } else {
                 $status = $response->status();
                 $body = $response->json();
                 if (isset($body['code']) && $body['code'] === 'PGRST205') {
-                    $this->warn("   [INFO] Otentikasi Supabase Sukses, namun tabel database belum dibuat.");
-                    $this->line("   Silakan buka SQL Editor Supabase dan jalankan isi file: database/supabase_schema.sql");
+                    $this->warn('   [INFO] Otentikasi Supabase Sukses, namun tabel database belum dibuat.');
+                    $this->line('   Silakan buka SQL Editor Supabase dan jalankan isi file: database/supabase_schema.sql');
                 } else {
-                    $this->warn("   [HTTP {$status}] Respons: " . ($body['message'] ?? 'Tidak diketahui'));
+                    $this->warn("   [HTTP {$status}] Respons: ".($body['message'] ?? 'Tidak diketahui'));
                 }
             }
         } catch (\Exception $e) {
-            $this->error("   [GAGAL] Gagal menghubungi REST API: " . $e->getMessage());
+            $this->error('   [GAGAL] Gagal menghubungi REST API: '.$e->getMessage());
         }
 
         // 2. Uji Direct PostgreSQL Connection (PDO)
@@ -70,8 +69,9 @@ class TestSupabaseConnection extends Command
         $this->line("   User: {$user}");
 
         if (empty($pass) || str_contains($pass, 'MASUKKAN_PASSWORD') || str_contains($pass, 'YOUR_PASSWORD')) {
-            $this->warn("   [PERHATIAN] Password database masih berupa placeholder di file .env");
-            $this->line("   Silakan koreksi DB_PASSWORD di .env dengan password database Supabase Anda.");
+            $this->warn('   [PERHATIAN] Password database masih berupa placeholder di file .env');
+            $this->line('   Silakan koreksi DB_PASSWORD di .env dengan password database Supabase Anda.');
+
             return 0;
         }
 
@@ -81,16 +81,16 @@ class TestSupabaseConnection extends Command
                 \PDO::ATTR_TIMEOUT => 5,
                 \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
             ]);
-            $this->info("   [SUKSES] Berhasil terhubung langsung ke PostgreSQL Supabase via PDO!");
+            $this->info('   [SUKSES] Berhasil terhubung langsung ke PostgreSQL Supabase via PDO!');
 
-            $stmt = $pdo->query("SELECT version()");
+            $stmt = $pdo->query('SELECT version()');
             $version = $stmt->fetchColumn();
-            $this->line("   Server Version: " . substr($version, 0, 45) . "...");
-            
+            $this->line('   Server Version: '.substr($version, 0, 45).'...');
+
             $this->info("\n[OK] Database Supabase Anda telah 100% siap digunakan!");
         } catch (\Exception $e) {
-            $this->error("   [GAGAL KONEKSI PDO] " . $e->getMessage());
-            $this->line("   Tips: Periksa kembali DB_PASSWORD Anda di file .env atau pastikan port (6543/5432) dapat diakses.");
+            $this->error('   [GAGAL KONEKSI PDO] '.$e->getMessage());
+            $this->line('   Tips: Periksa kembali DB_PASSWORD Anda di file .env atau pastikan port (6543/5432) dapat diakses.');
         }
 
         return 0;

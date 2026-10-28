@@ -28,6 +28,10 @@ class UpdateAttendanceSheetRequest extends FormRequest
             'records.*.status' => 'nullable|in:H,S,I,A',
             'records.*.notes' => 'nullable|string|max:150',
             'records.*.is_signed' => 'nullable|boolean',
+            'records.*.paraf_data' => 'nullable|string',
+            'records.*.paraf_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'records.*.remove_paraf' => 'nullable|boolean',
+            'records.*.paraf_path' => 'nullable|string',
         ];
     }
 }

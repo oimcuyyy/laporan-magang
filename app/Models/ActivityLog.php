@@ -17,12 +17,26 @@ class ActivityLog extends Model
         'division',
         'job_description',
         'supervisor_note',
+        'paraf_path',
         'is_approved',
     ];
 
     protected $casts = [
         'is_approved' => 'boolean',
     ];
+
+    public function getParafUrlAttribute(): ?string
+    {
+        if (! $this->paraf_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->paraf_path, 'data:image/') || str_starts_with($this->paraf_path, 'http')) {
+            return $this->paraf_path;
+        }
+
+        return asset('storage/'.$this->paraf_path);
+    }
 
     public function activitySheet(): BelongsTo
     {

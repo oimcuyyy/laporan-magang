@@ -40,6 +40,7 @@ class Student extends Model
         'teacher_phone',
         'mentor_name',
         'photo_path',
+        'mentor_signature_path',
     ];
 
     public function activitySheets(): HasMany
@@ -60,8 +61,22 @@ class Student extends Model
     public function getPhotoUrlAttribute(): ?string
     {
         if ($this->photo_path && Storage::disk('public')->exists($this->photo_path)) {
-            return asset('storage/' . $this->photo_path);
+            return asset('storage/'.$this->photo_path);
         }
+
         return null;
+    }
+
+    public function getMentorSignatureUrlAttribute(): ?string
+    {
+        if (! $this->mentor_signature_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->mentor_signature_path, 'data:image/') || str_starts_with($this->mentor_signature_path, 'http')) {
+            return $this->mentor_signature_path;
+        }
+
+        return asset('storage/'.$this->mentor_signature_path);
     }
 }

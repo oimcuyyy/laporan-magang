@@ -17,11 +17,25 @@ class AttendanceRecord extends Model
         'status',
         'notes',
         'is_signed',
+        'paraf_path',
     ];
 
     protected $casts = [
         'is_signed' => 'boolean',
     ];
+
+    public function getParafUrlAttribute(): ?string
+    {
+        if (! $this->paraf_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->paraf_path, 'data:image/') || str_starts_with($this->paraf_path, 'http')) {
+            return $this->paraf_path;
+        }
+
+        return asset('storage/'.$this->paraf_path);
+    }
 
     public function attendanceSheet(): BelongsTo
     {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSheet;
 use App\Models\Student;
+use App\Services\ParafService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -62,6 +63,8 @@ class AttendanceSheetApiController extends Controller
             'records.*.status' => 'nullable|in:H,S,I,A',
             'records.*.notes' => 'nullable|string|max:150',
             'records.*.is_signed' => 'nullable|boolean',
+            'records.*.paraf_data' => 'nullable|string',
+            'records.*.remove_paraf' => 'nullable|boolean',
         ]);
 
         $sheet->update(['month_name' => $validated['month_name']]);
@@ -72,11 +75,22 @@ class AttendanceSheetApiController extends Controller
                 ->first();
 
             if ($record) {
+                $base64 = $recData['paraf_data'] ?? null;
+                $shouldRemove = ! empty($recData['remove_paraf']);
+
+                $parafPath = ParafService::processParaf(
+                    base64Data: $base64,
+                    shouldRemove: $shouldRemove,
+                    currentPath: $record->paraf_path,
+                    prefix: 'attendance_paraf'
+                );
+
                 $record->update([
                     'day_date' => $recData['day_date'] ?? null,
-                    'status' => !empty($recData['status']) ? $recData['status'] : null,
+                    'status' => ! empty($recData['status']) ? $recData['status'] : null,
                     'notes' => $recData['notes'] ?? null,
-                    'is_signed' => !empty($recData['is_signed']),
+                    'paraf_path' => $parafPath,
+                    'is_signed' => ! empty($recData['is_signed']),
                 ]);
             }
         }

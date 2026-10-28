@@ -58,7 +58,7 @@ class StudentApiController extends Controller
         $student->load([
             'activitySheets.activityLogs',
             'attendanceSheets.records',
-            'evaluation'
+            'evaluation',
         ]);
 
         return response()->json([
@@ -183,9 +183,10 @@ class StudentApiController extends Controller
             ], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat data siswa: ' . $e->getMessage(),
+                'message' => 'Gagal membuat data siswa: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -198,7 +199,7 @@ class StudentApiController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:150',
-            'nis' => 'required|string|max:30|unique:students,nis,' . $student->id,
+            'nis' => 'required|string|max:30|unique:students,nis,'.$student->id,
             'nisn' => 'nullable|string|max:30',
             'class' => 'nullable|string|max:50',
             'major' => 'nullable|string|max:100',
@@ -296,19 +297,19 @@ class StudentApiController extends Controller
         $newMajor = $validated['major'] ?? $student->major;
         $newClass = $validated['class'] ?? $student->class;
         $newYear = $validated['academic_year'] ?? ($student->academic_year ?: '2026/2027');
-        $newName = $validated['name'] ?? ($student->name . ' (Kloning ' . $newClass . ')');
+        $newName = $validated['name'] ?? ($student->name.' (Kloning '.$newClass.')');
 
         DB::beginTransaction();
         try {
-            $newNis = (string)(intval($student->nis ?: '14450') + $count + rand(1, 9));
+            $newNis = (string) (intval($student->nis ?: '14450') + $count + rand(1, 9));
             while (Student::where('nis', $newNis)->exists()) {
-                $newNis = (string)(intval($newNis) + 1);
+                $newNis = (string) (intval($newNis) + 1);
             }
 
             $newStudent = Student::create([
                 'name' => $newName,
                 'nis' => $newNis,
-                'nisn' => $student->nisn ? $student->nisn . rand(1, 9) : null,
+                'nisn' => $student->nisn ? $student->nisn.rand(1, 9) : null,
                 'class' => $newClass,
                 'major' => $newMajor,
                 'field_of_expertise' => $student->field_of_expertise ?: 'Bisnis Manajemen dan Teknologi',
@@ -347,7 +348,7 @@ class StudentApiController extends Controller
             $att->recalculateTotals();
 
             $newStudent->evaluation()->create([
-                'evaluation_date' => 'Jakarta, ' . date('d F Y'),
+                'evaluation_date' => 'Jakarta, '.date('d F Y'),
                 'mentor_name' => $newStudent->mentor_name ?: 'Pembimbing Industri',
             ]);
 
@@ -360,9 +361,10 @@ class StudentApiController extends Controller
             ], 201);
         } catch (\Throwable $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal kloning siswa: ' . $e->getMessage(),
+                'message' => 'Gagal kloning siswa: '.$e->getMessage(),
             ], 500);
         }
     }

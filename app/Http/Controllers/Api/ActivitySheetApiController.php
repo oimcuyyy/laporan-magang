@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ActivityLog;
 use App\Models\ActivitySheet;
 use App\Models\Student;
+use App\Services\ParafService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -61,6 +62,8 @@ class ActivitySheetApiController extends Controller
             'logs.*.job_description' => 'nullable|string',
             'logs.*.supervisor_note' => 'nullable|string|max:100',
             'logs.*.is_approved' => 'nullable|boolean',
+            'logs.*.paraf_data' => 'nullable|string',
+            'logs.*.remove_paraf' => 'nullable|boolean',
         ]);
 
         $sheet->update(['month_name' => $validated['month_name']]);
@@ -71,12 +74,23 @@ class ActivitySheetApiController extends Controller
                 ->first();
 
             if ($log) {
+                $base64 = $logData['paraf_data'] ?? null;
+                $shouldRemove = ! empty($logData['remove_paraf']);
+
+                $parafPath = ParafService::processParaf(
+                    base64Data: $base64,
+                    shouldRemove: $shouldRemove,
+                    currentPath: $log->paraf_path,
+                    prefix: 'activity_paraf'
+                );
+
                 $log->update([
                     'day_date' => $logData['day_date'] ?? null,
                     'division' => $logData['division'] ?? null,
                     'job_description' => $logData['job_description'] ?? null,
                     'supervisor_note' => $logData['supervisor_note'] ?? null,
-                    'is_approved' => !empty($logData['is_approved']),
+                    'paraf_path' => $parafPath,
+                    'is_approved' => ! empty($logData['is_approved']),
                 ]);
             }
         }

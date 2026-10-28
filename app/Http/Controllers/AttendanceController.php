@@ -6,6 +6,8 @@ use App\Http\Requests\UpdateAttendanceSheetRequest;
 use App\Models\AttendanceRecord;
 use App\Models\AttendanceSheet;
 use App\Models\Student;
+use App\Services\ParafService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -55,21 +57,34 @@ class AttendanceController extends Controller
 
         $sheet->update(['month_name' => $validated['month_name']]);
 
-        foreach ($validated['records'] as $recData) {
+        foreach ($validated['records'] as $index => $recData) {
             $record = AttendanceRecord::where('id', $recData['id'])
                 ->where('attendance_sheet_id', $sheet->id)
                 ->first();
 
             if ($record) {
-                $status = !empty($recData['status']) ? $recData['status'] : null;
+                $status = ! empty($recData['status']) ? $recData['status'] : null;
                 // Keterangan khusus untuk Sakit (S), Izin (I), dan Alpa (A). Kalo Hadir (H) tidak perlu keterangan.
                 $notes = ($status === 'H') ? null : ($recData['notes'] ?? null);
+
+                $base64 = $recData['paraf_data'] ?? null;
+                $file = $request->file("records.{$index}.paraf_file");
+                $shouldRemove = ! empty($recData['remove_paraf']);
+
+                $parafPath = ParafService::processParaf(
+                    base64Data: $base64,
+                    uploadedFile: $file,
+                    shouldRemove: $shouldRemove,
+                    currentPath: $record->paraf_path,
+                    prefix: 'attendance_paraf'
+                );
 
                 $record->update([
                     'day_date' => $recData['day_date'] ?? null,
                     'status' => $status,
                     'notes' => $notes,
-                    'is_signed' => isset($recData['is_signed']) ? (bool)$recData['is_signed'] : false,
+                    'paraf_path' => $parafPath,
+                    'is_signed' => isset($recData['is_signed']) ? (bool) $recData['is_signed'] : false,
                 ]);
             }
         }
@@ -104,7 +119,7 @@ class AttendanceController extends Controller
     /**
      * Tambah 1 Hari Presensi (Opsional: Sabtu/Minggu atau hari tambahan)
      */
-    public function addRecord(Request $request, Student $student, AttendanceSheet $sheet): RedirectResponse|\Illuminate\Http\JsonResponse
+    public function addRecord(Request $request, Student $student, AttendanceSheet $sheet): RedirectResponse|JsonResponse
     {
         if ($sheet->student_id !== $student->id) {
             abort(403, 'Aksi tidak diizinkan.');
@@ -150,7 +165,7 @@ class AttendanceController extends Controller
     /**
      * Hapus 1 Baris Presensi (Opsional: Jika Sabtu/Minggu libur)
      */
-    public function destroyRecord(Request $request, Student $student, AttendanceSheet $sheet, AttendanceRecord $record): RedirectResponse|\Illuminate\Http\JsonResponse
+    public function destroyRecord(Request $request, Student $student, AttendanceSheet $sheet, AttendanceRecord $record): RedirectResponse|JsonResponse
     {
         if ($sheet->student_id !== $student->id || $record->attendance_sheet_id !== $sheet->id) {
             abort(403, 'Aksi tidak diizinkan.');

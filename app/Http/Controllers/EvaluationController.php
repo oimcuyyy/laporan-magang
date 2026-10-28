@@ -6,7 +6,6 @@ use App\Http\Requests\UpdateEvaluationRequest;
 use App\Models\Evaluation;
 use App\Models\Student;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class EvaluationController extends Controller
 {

@@ -173,6 +173,110 @@
         margin-top: 0.15rem;
     }
 
+    /* Paraf Upload UI Components */
+    .paraf-slot-container {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.35rem;
+    }
+    .paraf-preview-box {
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .paraf-thumb-img {
+        max-height: 36px;
+        max-width: 100%;
+        object-fit: contain;
+        display: block;
+        mix-blend-mode: multiply;
+        transition: transform 0.2s ease;
+    }
+    .paraf-actions {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        display: flex;
+        gap: 3px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 4px;
+        padding: 2px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+    .btn-paraf-action {
+        width: 18px;
+        height: 18px;
+        border-radius: 3px;
+        border: none;
+        background: #f1f5f9;
+        color: #475569;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        transition: background 0.15s, color 0.15s;
+    }
+    .btn-paraf-action:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .btn-paraf-remove:hover {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    .btn-upload-paraf {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #475569;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .btn-upload-paraf:hover {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #2563eb;
+    }
+    .btn-upload-paraf-sm {
+        padding: 3px 6px;
+        font-size: 0.7rem;
+    }
+    .btn-batch-paraf {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 4px;
+        padding: 2px 6px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: #334155;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .btn-batch-paraf:hover {
+        background: #e0f2fe;
+        border-color: #38bdf8;
+        color: #0369a1;
+    }
+
     /* Word Document 2-Column Layout (Vertikal Navigation Pane di Kiri ala Microsoft Word) */
     .word-document-layout {
         display: grid;
@@ -2037,6 +2141,39 @@
                                 <label class="form-label">Pembimbing Industri (Mentor DU/DI)</label>
                                 <input type="text" name="mentor_name" class="form-control" value="{{ old('mentor_name', $student->mentor_name ?: 'Sujatmo, S.Sos') }}" placeholder="Nama Pembimbing Industri">
                             </div>
+
+                            <!-- Tanda Tangan / Paraf Mentor Industri -->
+                            <div class="form-group" style="grid-column:span 2;">
+                                <label class="form-label">Tanda Tangan / Paraf Pembimbing Industri</label>
+                                <div style="display:flex;align-items:center;gap:1.25rem;background:#f8fafc;padding:0.85rem 1rem;border-radius:12px;border:1px solid #e2e8f0;">
+                                    <div id="mentorSigPreviewBox" style="width:140px;height:65px;border:1px dashed #cbd5e1;border-radius:8px;background:#ffffff;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                                        @if($student->mentor_signature_url)
+                                            <img src="{{ $student->mentor_signature_url }}" id="mentorSigImg" alt="Tanda Tangan Mentor" style="max-height:55px;max-width:125px;object-fit:contain;mix-blend-mode:multiply;">
+                                        @else
+                                            <span id="mentorSigPlaceholder" style="font-size:0.75rem;color:#94a3b8;font-style:italic;">Belum ada TTD</span>
+                                            <img src="" id="mentorSigImg" alt="Tanda Tangan Mentor" style="max-height:55px;max-width:125px;object-fit:contain;mix-blend-mode:multiply;display:none;">
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <input type="hidden" name="mentor_signature_data" id="mentorSigData" value="">
+                                        <input type="hidden" name="remove_mentor_signature" id="removeMentorSigInput" value="0">
+                                        <input type="file" id="mentorSigFileInput" name="mentor_signature" accept="image/*" style="display:none;" onchange="handleMentorSigSelected(this)">
+                                        
+                                        <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                                            <label for="mentorSigFileInput" class="btn btn-secondary btn-sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                                Upload Foto TTD
+                                            </label>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" id="btnRemoveMentorSig" style="{{ $student->mentor_signature_url ? '' : 'display:none;' }}" onclick="removeMentorSignature()">
+                                                Hapus
+                                            </button>
+                                        </div>
+                                        <p style="font-size:0.72rem;color:var(--slate-500);margin-top:0.35rem;margin-bottom:0;">
+                                            Otomatis transparan & tanpa latar foto saat dicetak ke Lembar 4 & 5.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -2314,7 +2451,7 @@
 
     <!-- Form 10 Baris Uraian Kegiatan -->
     @if($currentSheet)
-    <form action="{{ route('activity-sheets.update', [$student->id, $currentSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition()">
+    <form action="{{ route('activity-sheets.update', [$student->id, $currentSheet->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
 
@@ -2340,7 +2477,15 @@
                         <th style="width:170px;min-width:160px;text-align:left;">Hari / Tanggal</th>
                         <th style="width:180px;min-width:170px;text-align:left;">Divisi / Bagian</th>
                         <th style="min-width:250px;text-align:left;">Uraian Pekerjaan</th>
-                        <th style="width:160px;min-width:155px;text-align:left;">Pembimbing Industri</th>
+                        <th style="width:200px;min-width:190px;text-align:left;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Pembimbing Industri</span>
+                                <button type="button" class="btn-batch-paraf" onclick="openBatchParafModal('activity')" title="Terapkan paraf ke semua 10 baris">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                                    Semua
+                                </button>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -2360,8 +2505,36 @@
                                 <textarea name="logs[{{ $log->id }}][job_description]" class="table-input" rows="2" placeholder="Uraian pekerjaan harian...">{{ old("logs.{$log->id}.job_description", $log->job_description) }}</textarea>
                             </td>
                             <td>
-                                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                                <div class="paraf-slot-container" data-row-id="{{ $log->id }}" data-type="log">
+                                    <input type="hidden" name="logs[{{ $log->id }}][paraf_data]" id="paraf-data-log-{{ $log->id }}" value="">
+                                    <input type="hidden" name="logs[{{ $log->id }}][remove_paraf]" id="remove-paraf-log-{{ $log->id }}" value="0">
+
                                     <input type="text" name="logs[{{ $log->id }}][supervisor_note]" value="{{ old("logs.{$log->id}.supervisor_note", $log->supervisor_note) }}" class="table-input" placeholder="Paraf/Catatan">
+
+                                    <!-- Paraf Photo Preview & Upload Actions -->
+                                    <div class="paraf-preview-box" id="paraf-box-log-{{ $log->id }}" style="{{ $log->paraf_url ? '' : 'display:none;' }}">
+                                        <img src="{{ $log->paraf_url ?? '' }}" id="paraf-img-log-{{ $log->id }}" alt="Paraf Baris {{ $log->row_index }}" class="paraf-thumb-img">
+                                        <div class="paraf-actions">
+                                            <label for="paraf-file-log-{{ $log->id }}" class="btn-paraf-action" title="Ganti foto paraf">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                            </label>
+                                            <button type="button" class="btn-paraf-action btn-paraf-remove" onclick="removeRowParaf('log', {{ $log->id }})" title="Hapus foto paraf">
+                                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Button (Shown when no paraf yet) -->
+                                    <div id="paraf-upload-btn-log-{{ $log->id }}" style="{{ $log->paraf_url ? 'display:none;' : '' }}">
+                                        <label for="paraf-file-log-{{ $log->id }}" class="btn-upload-paraf">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                            Upload Paraf
+                                        </label>
+                                    </div>
+
+                                    <!-- Hidden File Input for this row -->
+                                    <input type="file" id="paraf-file-log-{{ $log->id }}" accept="image/*" style="display:none;" onchange="handleParafFileSelected(this, 'log', {{ $log->id }})">
+
                                     <label class="approval-toggle">
                                         <input type="checkbox" name="logs[{{ $log->id }}][is_approved]" value="1" {{ $log->is_approved ? 'checked' : '' }} class="approval-toggle-checkbox">
                                         <span class="approval-toggle-indicator">
@@ -2472,7 +2645,7 @@
     </div>
 
     @if($currentAttSheet)
-    <form action="{{ route('attendance-sheets.update', [$student->id, $currentAttSheet->id]) }}" method="POST" onsubmit="preserveScrollPosition()">
+    <form action="{{ route('attendance-sheets.update', [$student->id, $currentAttSheet->id]) }}" method="POST" enctype="multipart/form-data" onsubmit="preserveScrollPosition()">
         @csrf
         @method('PUT')
 
@@ -2499,7 +2672,15 @@
                         <th rowspan="2" style="width:75px;">Hadir (H)</th>
                         <th colspan="3" style="width:150px;">Tidak Hadir</th>
                         <th rowspan="2">Keterangan</th>
-                        <th rowspan="2" style="width:130px;">Pembimbing Industri</th>
+                        <th rowspan="2" style="width:170px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <span>Pembimbing</span>
+                                <button type="button" class="btn-batch-paraf" onclick="openBatchParafModal('attendance')" title="Terapkan paraf ke seluruh hari">
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                                    Semua
+                                </button>
+                            </div>
+                        </th>
                         <th rowspan="2" style="width:40px;"></th>
                     </tr>
                     <tr>
@@ -2535,10 +2716,36 @@
                                 <input type="text" id="notes-{{ $rec->id }}" name="records[{{ $rec->id }}][notes]" value="{{ old("records.{$rec->id}.notes", $rec->notes) }}" class="table-input" placeholder="Keterangan">
                             </td>
                             <td>
-                                <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.75rem;color:var(--slate-600);justify-content:center;">
-                                    <input type="checkbox" name="records[{{ $rec->id }}][is_signed]" value="1" {{ $rec->is_signed ? 'checked' : '' }}>
-                                    Paraf
-                                </label>
+                                <div class="paraf-slot-container" data-row-id="{{ $rec->id }}" data-type="rec">
+                                    <input type="hidden" name="records[{{ $rec->id }}][paraf_data]" id="paraf-data-rec-{{ $rec->id }}" value="">
+                                    <input type="hidden" name="records[{{ $rec->id }}][remove_paraf]" id="remove-paraf-rec-{{ $rec->id }}" value="0">
+
+                                    <div class="paraf-preview-box" id="paraf-box-rec-{{ $rec->id }}" style="{{ $rec->paraf_url ? '' : 'display:none;' }}">
+                                        <img src="{{ $rec->paraf_url ?? '' }}" id="paraf-img-rec-{{ $rec->id }}" alt="Paraf Hari {{ $rec->day_number }}" class="paraf-thumb-img" style="max-height:26px;">
+                                        <div class="paraf-actions">
+                                            <label for="paraf-file-rec-{{ $rec->id }}" class="btn-paraf-action" title="Ganti foto paraf">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                            </label>
+                                            <button type="button" class="btn-paraf-action btn-paraf-remove" onclick="removeRowParaf('rec', {{ $rec->id }})" title="Hapus foto paraf">
+                                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div id="paraf-upload-btn-rec-{{ $rec->id }}" style="{{ $rec->paraf_url ? 'display:none;' : '' }}">
+                                        <label for="paraf-file-rec-{{ $rec->id }}" class="btn-upload-paraf btn-upload-paraf-sm">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                                            Paraf
+                                        </label>
+                                    </div>
+
+                                    <input type="file" id="paraf-file-rec-{{ $rec->id }}" accept="image/*" style="display:none;" onchange="handleParafFileSelected(this, 'rec', {{ $rec->id }})">
+
+                                    <label style="display:flex;align-items:center;gap:0.35rem;font-size:0.72rem;color:var(--slate-600);justify-content:center;margin-top:0.2rem;">
+                                        <input type="checkbox" name="records[{{ $rec->id }}][is_signed]" value="1" {{ $rec->is_signed ? 'checked' : '' }}>
+                                        Paraf
+                                    </label>
+                                </div>
                             </td>
                             <td style="text-align:center;">
                                 @if($currentAttSheet->records->count() > 1)
@@ -2629,6 +2836,39 @@
                 <button type="submit" class="btn btn-primary">Buat Lembar Presensi</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- MODAL: BATCH TERAPKAN PARAF KE SEMUA BARIS -->
+<div id="batchParafModal" class="modal-backdrop">
+    <div class="modal-box" style="max-width:440px;">
+        <h4 style="font-size:1.15rem;font-weight:800;margin-bottom:0.35rem;color:var(--slate-900);">Terapkan Paraf ke Semua Baris</h4>
+        <p style="font-size:0.85rem;color:var(--slate-500);margin-bottom:1.25rem;" id="batchParafDesc">
+            Upload 1 foto paraf, otomatis diproses transparan & diterapkan ke seluruh baris lembar ini.
+        </p>
+
+        <div style="background:#f8fafc;border:2px dashed #cbd5e1;border-radius:12px;padding:1.5rem;text-align:center;margin-bottom:1.25rem;">
+            <div id="batchPreviewBox" style="display:none;margin-bottom:1rem;">
+                <img id="batchPreviewImg" src="" alt="Preview Paraf" style="max-height:65px;max-width:180px;object-fit:contain;mix-blend-mode:multiply;margin:0 auto;display:block;">
+                <span style="display:inline-block;font-size:0.75rem;color:#16a34a;font-weight:700;margin-top:0.4rem;">&#10003; Berhasil diproses transparan & ringan</span>
+            </div>
+
+            <input type="file" id="batchParafFileInput" accept="image/*" style="display:none;" onchange="handleBatchParafFileSelected(this)">
+            <label for="batchParafFileInput" class="btn btn-secondary" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Pilih Foto Paraf
+            </label>
+            <p style="font-size:0.75rem;color:var(--slate-400);margin-top:0.5rem;margin-bottom:0;">
+                Kamera HP atau Galeri Foto (JPG/PNG/WEBP)
+            </p>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('batchParafModal')">Batal</button>
+            <button type="button" class="btn btn-primary" id="btnApplyBatch" onclick="applyBatchParaf()" disabled>
+                Terapkan ke Semua
+            </button>
+        </div>
     </div>
 </div>
 
@@ -3601,5 +3841,230 @@
             Swal.fire('Kesalahan Jaringan', 'Gagal menghubungi server.', 'error');
         }
     }
+
+    // ==========================================
+    // PARAF OPTIMIZER & SEAMLESS INK PROCESSING
+    // ==========================================
+    window.ParafOptimizer = {
+        optimizeImage: function(file, callback) {
+            if (!file || !file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    let w = img.width;
+                    let h = img.height;
+                    const maxW = 320;
+                    const maxH = 130;
+                    if (w > maxW || h > maxH) {
+                        const ratio = Math.min(maxW / w, maxH / h);
+                        w = Math.round(w * ratio);
+                        h = Math.round(h * ratio);
+                    }
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                    ctx.drawImage(img, 0, 0, w, h);
+
+                    const imgData = ctx.getImageData(0, 0, w, h);
+                    const data = imgData.data;
+
+                    // Auto-transparency & ink contrast boost
+                    for (let i = 0; i < data.length; i += 4) {
+                        const r = data[i];
+                        const g = data[i + 1];
+                        const b = data[i + 2];
+                        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                        if (lum > 185) {
+                            data[i + 3] = 0; // Pure transparent background
+                        } else if (lum > 150) {
+                            const factor = (lum - 150) / 35;
+                            data[i + 3] = Math.round((1 - factor) * 255);
+                        } else {
+                            data[i] = Math.max(0, r - 30);
+                            data[i + 1] = Math.max(0, g - 30);
+                            data[i + 2] = Math.max(0, b - 30);
+                        }
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    let result = canvas.toDataURL('image/webp', 0.85);
+                    if (!result.startsWith('data:image/webp')) {
+                        result = canvas.toDataURL('image/png');
+                    }
+                    callback(result);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    window.handleParafFileSelected = function(input, type, id) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, function(base64) {
+            const previewBox = document.getElementById(`paraf-box-${type}-${id}`);
+            const previewImg = document.getElementById(`paraf-img-${type}-${id}`);
+            const uploadBtn = document.getElementById(`paraf-upload-btn-${type}-${id}`);
+            const dataInput = document.getElementById(`paraf-data-${type}-${id}`);
+            const removeInput = document.getElementById(`remove-paraf-${type}-${id}`);
+
+            if (previewImg) previewImg.src = base64;
+            if (previewBox) previewBox.style.display = 'flex';
+            if (uploadBtn) uploadBtn.style.display = 'none';
+            if (dataInput) dataInput.value = base64;
+            if (removeInput) removeInput.value = '0';
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Foto paraf berhasil diproses transparan & siap disimpan'
+            });
+        });
+    };
+
+    window.removeRowParaf = function(type, id) {
+        const previewBox = document.getElementById(`paraf-box-${type}-${id}`);
+        const previewImg = document.getElementById(`paraf-img-${type}-${id}`);
+        const uploadBtn = document.getElementById(`paraf-upload-btn-${type}-${id}`);
+        const dataInput = document.getElementById(`paraf-data-${type}-${id}`);
+        const removeInput = document.getElementById(`remove-paraf-${type}-${id}`);
+        const fileInput = document.getElementById(`paraf-file-${type}-${id}`);
+
+        if (previewImg) previewImg.src = '';
+        if (previewBox) previewBox.style.display = 'none';
+        if (uploadBtn) uploadBtn.style.display = '';
+        if (dataInput) dataInput.value = '';
+        if (removeInput) removeInput.value = '1';
+        if (fileInput) fileInput.value = '';
+
+        Toast.fire({
+            icon: 'info',
+            title: 'Paraf baris ini ditandai untuk dihapus'
+        });
+    };
+
+    // BATCH PARAF MODAL
+    let currentBatchTarget = 'activity';
+    let currentBatchOptimizedData = null;
+
+    window.openBatchParafModal = function(target) {
+        currentBatchTarget = target;
+        currentBatchOptimizedData = null;
+        document.getElementById('batchPreviewBox').style.display = 'none';
+        document.getElementById('batchPreviewImg').src = '';
+        document.getElementById('btnApplyBatch').disabled = true;
+        document.getElementById('batchParafFileInput').value = '';
+
+        const descEl = document.getElementById('batchParafDesc');
+        if (target === 'activity') {
+            descEl.textContent = 'Upload 1 foto paraf, otomatis diproses transparan & diterapkan ke seluruh 10 baris Uraian Kegiatan ini.';
+        } else {
+            descEl.textContent = 'Upload 1 foto paraf, otomatis diproses transparan & diterapkan ke seluruh hari presensi pada bulan ini.';
+        }
+
+        openModal('batchParafModal');
+    };
+
+    window.handleBatchParafFileSelected = function(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, function(base64) {
+            currentBatchOptimizedData = base64;
+            const previewBox = document.getElementById('batchPreviewBox');
+            const previewImg = document.getElementById('batchPreviewImg');
+            const applyBtn = document.getElementById('btnApplyBatch');
+
+            previewImg.src = base64;
+            previewBox.style.display = 'block';
+            applyBtn.disabled = false;
+        });
+    };
+
+    window.applyBatchParaf = function() {
+        if (!currentBatchOptimizedData) return;
+
+        const selector = currentBatchTarget === 'activity' 
+            ? '.paraf-slot-container[data-type="log"]' 
+            : '.paraf-slot-container[data-type="rec"]';
+
+        const containers = document.querySelectorAll(selector);
+        containers.forEach(container => {
+            const rowId = container.dataset.rowId;
+            const prefix = currentBatchTarget === 'activity' ? 'log' : 'rec';
+
+            const previewBox = document.getElementById(`paraf-box-${prefix}-${rowId}`);
+            const previewImg = document.getElementById(`paraf-img-${prefix}-${rowId}`);
+            const uploadBtn = document.getElementById(`paraf-upload-btn-${prefix}-${rowId}`);
+            const dataInput = document.getElementById(`paraf-data-${prefix}-${rowId}`);
+            const removeInput = document.getElementById(`remove-paraf-${prefix}-${rowId}`);
+
+            if (previewImg) previewImg.src = currentBatchOptimizedData;
+            if (previewBox) previewBox.style.display = 'flex';
+            if (uploadBtn) uploadBtn.style.display = 'none';
+            if (dataInput) dataInput.value = currentBatchOptimizedData;
+            if (removeInput) removeInput.value = '0';
+        });
+
+        closeModal('batchParafModal');
+        Toast.fire({
+            icon: 'success',
+            title: `Paraf diterapkan ke semua baris ${currentBatchTarget === 'activity' ? 'kegiatan' : 'presensi'}! Klik Simpan untuk memperbarui.`
+        });
+    };
+
+    // MENTOR SIGNATURE
+    window.handleMentorSigSelected = function(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, function(base64) {
+            const img = document.getElementById('mentorSigImg');
+            const placeholder = document.getElementById('mentorSigPlaceholder');
+            const removeBtn = document.getElementById('btnRemoveMentorSig');
+            const dataInput = document.getElementById('mentorSigData');
+            const removeInput = document.getElementById('removeMentorSigInput');
+
+            if (img) {
+                img.src = base64;
+                img.style.display = 'block';
+            }
+            if (placeholder) placeholder.style.display = 'none';
+            if (removeBtn) removeBtn.style.display = 'inline-flex';
+            if (dataInput) dataInput.value = base64;
+            if (removeInput) removeInput.value = '0';
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Tanda tangan mentor diproses transparan & siap disimpan'
+            });
+        });
+    };
+
+    window.removeMentorSignature = function() {
+        const img = document.getElementById('mentorSigImg');
+        const placeholder = document.getElementById('mentorSigPlaceholder');
+        const removeBtn = document.getElementById('btnRemoveMentorSig');
+        const dataInput = document.getElementById('mentorSigData');
+        const removeInput = document.getElementById('removeMentorSigInput');
+        const fileInput = document.getElementById('mentorSigFileInput');
+
+        if (img) {
+            img.src = '';
+            img.style.display = 'none';
+        }
+        if (placeholder) placeholder.style.display = 'inline';
+        if (removeBtn) removeBtn.style.display = 'none';
+        if (dataInput) dataInput.value = '';
+        if (removeInput) removeInput.value = '1';
+        if (fileInput) fileInput.value = '';
+
+        Toast.fire({
+            icon: 'info',
+            title: 'Tanda tangan mentor ditandai untuk dihapus'
+        });
+    };
 </script>
 @endpush

@@ -4,6 +4,8 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\EvaluationController;
 use App\Http\Controllers\StudentController;
+use App\Http\Middleware\WebProtectiveFirewall;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -17,11 +19,11 @@ Route::get('students', [StudentController::class, 'index'])->name('students.inde
 Route::get('students/create', [StudentController::class, 'create'])->name('students.create');
 Route::get('students/{student}', [StudentController::class, 'show'])->name('students.show');
 Route::get('students/{student}/print', [StudentController::class, 'printReport'])->name('students.print');
-Route::get('tampered-url', function (\Illuminate\Http\Request $request) {
+Route::get('tampered-url', function (Request $request) {
     $detail = $request->query('detail', 'Terdeteksi manipulasi pada tautan atau bagian akhir link URL.');
     $url = $request->query('url', $request->fullUrl());
 
-    return \App\Http\Middleware\WebProtectiveFirewall::renderTamperedUrlResponse(
+    return WebProtectiveFirewall::renderTamperedUrlResponse(
         $request,
         $detail,
         $url

@@ -1,8 +1,10 @@
 <?php
 
-function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgThreshold = 230) {
-    if (!file_exists($srcPath)) {
+function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgThreshold = 230)
+{
+    if (! file_exists($srcPath)) {
         echo "File $srcPath not found\n";
+
         return false;
     }
 
@@ -30,7 +32,7 @@ function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgT
 
     for ($y = 0; $y < $h; $y++) {
         foreach ([0, $w - 1] as $x) {
-            if (!$visited[$y][$x]) {
+            if (! $visited[$y][$x]) {
                 $c = imagecolorsforindex($src, imagecolorat($src, $x, $y));
                 if ($c['red'] >= $bgThreshold && $c['green'] >= $bgThreshold && $c['blue'] >= $bgThreshold) {
                     $queue[] = [$x, $y];
@@ -46,13 +48,13 @@ function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgT
     $dy = [0, 0, 1, -1];
 
     while ($head < count($queue)) {
-        list($cx, $cy) = $queue[$head++];
+        [$cx, $cy] = $queue[$head++];
 
         for ($i = 0; $i < 4; $i++) {
             $nx = $cx + $dx[$i];
             $ny = $cy + $dy[$i];
 
-            if ($nx >= 0 && $nx < $w && $ny >= 0 && $ny < $h && !$visited[$ny][$nx]) {
+            if ($nx >= 0 && $nx < $w && $ny >= 0 && $ny < $h && ! $visited[$ny][$nx]) {
                 $visited[$ny][$nx] = true;
                 $c = imagecolorsforindex($src, imagecolorat($src, $nx, $ny));
                 if ($c['red'] >= $bgThreshold && $c['green'] >= $bgThreshold && $c['blue'] >= $bgThreshold) {
@@ -65,8 +67,8 @@ function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgT
 
     // Now create a truecolor transparent image
     $scale = min($maxDim / $w, $maxDim / $h, 1.0);
-    $newW = (int)round($w * $scale);
-    $newH = (int)round($h * $scale);
+    $newW = (int) round($w * $scale);
+    $newH = (int) round($h * $scale);
 
     $fullTrans = imagecreatetruecolor($w, $h);
     imagealphablending($fullTrans, false);
@@ -100,7 +102,8 @@ function makeTransparentAndSave($srcPath, $dstPng, $dstWebp, $maxDim = 180, $bgT
     imagedestroy($fullTrans);
     imagedestroy($dst);
 
-    echo "Saved $dstPng (" . filesize($dstPng) . " B) and $dstWebp (" . filesize($dstWebp) . " B)\n";
+    echo "Saved $dstPng (".filesize($dstPng)." B) and $dstWebp (".filesize($dstWebp)." B)\n";
+
     return true;
 }
 
@@ -115,7 +118,9 @@ makeTransparentAndSave($srcM2, 'public/images/logo-jayaraya.png', 'public/images
 
 // Sync to frontend/images and public/frontend/images
 foreach (['frontend/images', 'public/frontend/images'] as $dir) {
-    if (!is_dir($dir)) mkdir($dir, 0755, true);
+    if (! is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
     copy('public/images/logo-smkn20.png', "$dir/logo-smkn20.png");
     copy('public/images/logo-smkn20.webp', "$dir/logo-smkn20.webp");
     copy('public/images/logo-jayaraya.png', "$dir/logo-jayaraya.png");
