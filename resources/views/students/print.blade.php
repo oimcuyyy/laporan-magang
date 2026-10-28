@@ -231,22 +231,52 @@
 
         .cover-top-corner {
             position: absolute;
-            top: -12mm;
-            left: -15mm;
-            width: 140px;
-            height: 140px;
+            top: -16mm;
+            left: -22mm;
+            width: 175px;
+            height: 175px;
             pointer-events: none;
             z-index: 1;
+            background: linear-gradient(135deg, 
+                rgba(37, 99, 235, 0.22) 0px, 
+                rgba(37, 99, 235, 0.22) 60px, 
+                rgba(29, 78, 216, 0.40) 60px, 
+                rgba(29, 78, 216, 0.40) 85px, 
+                transparent 85px, 
+                transparent 93px, 
+                #3b82f6 93px, 
+                #3b82f6 107px, 
+                transparent 107px, 
+                transparent 115px, 
+                #2563eb 115px, 
+                #2563eb 129px, 
+                transparent 129px
+            );
         }
 
         .cover-bottom-corner {
             position: absolute;
-            bottom: -8mm;
-            right: -10mm;
-            width: 155px;
-            height: 155px;
+            bottom: -18mm;
+            right: -18mm;
+            width: 175px;
+            height: 175px;
             pointer-events: none;
             z-index: 1;
+            background: linear-gradient(315deg, 
+                rgba(30, 58, 138, 0.22) 0px, 
+                rgba(30, 58, 138, 0.22) 60px, 
+                rgba(37, 99, 235, 0.40) 60px, 
+                rgba(37, 99, 235, 0.40) 85px, 
+                transparent 85px, 
+                transparent 93px, 
+                #3b82f6 93px, 
+                #3b82f6 107px, 
+                transparent 107px, 
+                transparent 115px, 
+                #1d4ed8 115px, 
+                #1d4ed8 129px, 
+                transparent 129px
+            );
         }
 
         .cover-logos-row {
@@ -497,20 +527,9 @@
     <!-- ==================================================== -->
     <div class="page-a4">
         <div class="cover-page">
-            <!-- Corner SVG Graphics (Pure Polygons for 100% Canvas & PDF Fidelity) -->
-            <svg class="cover-top-corner" viewBox="0 0 100 100">
-                <polygon points="0,0 75,0 0,75" fill="#2563eb" opacity="0.20"/>
-                <polygon points="0,0 50,0 0,50" fill="#1d4ed8" opacity="0.38"/>
-                <polygon points="12,0 26,0 0,26 0,12" fill="#3b82f6" opacity="0.85"/>
-                <polygon points="30,0 40,0 0,40 0,30" fill="#2563eb" opacity="0.75"/>
-            </svg>
-
-            <svg class="cover-bottom-corner" viewBox="0 0 100 100">
-                <polygon points="100,100 25,100 100,25" fill="#1e3a8a" opacity="0.20"/>
-                <polygon points="100,100 50,100 100,50" fill="#2563eb" opacity="0.38"/>
-                <polygon points="88,100 74,100 100,74 100,88" fill="#3b82f6" opacity="0.85"/>
-                <polygon points="70,100 60,100 100,60 100,70" fill="#1d4ed8" opacity="0.75"/>
-            </svg>
+            <!-- Corner Geometric Accents (Pure CSS Linear-Gradient for 100% Canvas & PDF Fidelity) -->
+            <div class="cover-top-corner"></div>
+            <div class="cover-bottom-corner"></div>
 
             <!-- 1. Bagian Atas: Logo & Judul Utama -->
             <div class="cover-top-section">
