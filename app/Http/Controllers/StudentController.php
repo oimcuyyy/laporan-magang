@@ -290,9 +290,58 @@ class StudentController extends Controller
             );
         }
 
+        if (! empty($validated['mentor_signature_path']) && empty($validated['default_paraf_path']) && ! $student->default_paraf_path) {
+            $validated['default_paraf_path'] = $validated['mentor_signature_path'];
+        }
+        if (! empty($validated['default_paraf_path']) && empty($validated['mentor_signature_path']) && ! $student->mentor_signature_path) {
+            $validated['mentor_signature_path'] = $validated['default_paraf_path'];
+        }
+
         $student->update($validated);
 
         return redirect()->route('students.show', [$student->id, 'tab' => 'identitas'])->with('success', 'Data Identitas Peserta berhasil diperbarui!');
+    }
+
+    /**
+     * Update Tanda Tangan Pembimbing Industri secara mandiri / langsung
+     */
+    public function updateMentorSignature(Request $request, Student $student): RedirectResponse|JsonResponse
+    {
+        $request->validate([
+            'mentor_signature' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'mentor_signature_data' => 'nullable|string',
+            'remove_mentor_signature' => 'nullable|boolean',
+        ]);
+
+        $base64 = $request->input('mentor_signature_data');
+        $file = $request->file('mentor_signature');
+        $remove = $request->boolean('remove_mentor_signature');
+
+        $sigPath = ParafService::processParaf(
+            base64Data: $base64,
+            uploadedFile: $file,
+            shouldRemove: $remove,
+            currentPath: $student->mentor_signature_path,
+            prefix: 'mentor_sig'
+        );
+
+        $student->update(['mentor_signature_path' => $sigPath]);
+
+        // Jika default_paraf_path belum terisi, otomatis isi agar paraf juga aktif
+        if ($sigPath && ! $student->default_paraf_path) {
+            $student->update(['default_paraf_path' => $sigPath]);
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Tanda tangan pembimbing industri berhasil disimpan!',
+                'signature_url' => $student->mentor_signature_url,
+                'signature_path' => $student->mentor_signature_path,
+            ]);
+        }
+
+        return back()->with('success', 'Tanda tangan pembimbing industri berhasil diperbarui!');
     }
 
     /**
@@ -320,6 +369,11 @@ class StudentController extends Controller
         );
 
         $student->update(['default_paraf_path' => $parafPath]);
+
+        // Jika tanda tangan pembimbing industri belum diisi, otomatis isi agar Lembar 4 & 5 langsung terpasang
+        if ($parafPath && ! $student->mentor_signature_path) {
+            $student->update(['mentor_signature_path' => $parafPath]);
+        }
 
         if ($request->boolean('apply_to_all_existing') && $parafPath) {
             foreach ($student->activitySheets as $actSheet) {

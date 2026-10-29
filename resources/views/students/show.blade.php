@@ -3036,7 +3036,20 @@
             <div style="text-align:center;min-width:220px;display:flex;flex-direction:column;justify-content:space-between;">
                 <div>
                     <span style="font-size:0.85rem;color:var(--slate-600);font-weight:600;">Pembimbing Industri</span>
-                    <div style="height:60px;"></div>
+                    <div id="attRecapMentorSigContainer" style="min-height:65px;display:flex;align-items:center;justify-content:center;margin:0.35rem auto;position:relative;">
+                        @if($student->mentor_signature_url)
+                            <div style="position:relative;display:inline-block;" title="Tanda Tangan Pembimbing Industri">
+                                <img src="{{ $student->mentor_signature_url }}" id="attRecapMentorSigImg" alt="Tanda Tangan Pembimbing Industri" class="mentor-sig-thumb" style="max-height:60px;max-width:160px;object-fit:contain;mix-blend-mode:multiply;display:block;margin:0 auto;">
+                            </div>
+                        @else
+                            <div style="height:55px;display:flex;align-items:center;justify-content:center;">
+                                <button type="button" onclick="triggerMentorSignatureUpload()" style="font-size:0.75rem;color:var(--primary);text-decoration:none;border:1px dashed #cbd5e1;padding:4px 8px;border-radius:6px;background:#f8fafc;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    Upload TTD Pembimbing
+                                </button>
+                            </div>
+                        @endif
+                    </div>
                     <strong style="display:block;border-top:1px dotted #94a3b8;padding-top:0.35rem;font-size:0.9rem;">
                         {{ $student->mentor_name ?: '..........................................' }}
                     </strong>
@@ -3275,7 +3288,20 @@
                     <input type="text" name="evaluation_date" class="form-control" style="width:230px;text-align:center;" value="{{ old('evaluation_date', $eval->evaluation_date ?? 'Jakarta, 30 November 2026') }}" required>
                 </div>
                 <span style="font-weight:600;font-size:0.9rem;color:var(--slate-700);">Pembimbing Dunia Industri</span>
-                <div style="height:70px;"></div>
+                <div id="evalMentorSigContainer" style="min-height:70px;display:flex;align-items:center;justify-content:center;margin:0.35rem auto;position:relative;">
+                    @if($student->mentor_signature_url)
+                        <div style="position:relative;display:inline-block;" title="Tanda Tangan Pembimbing Industri">
+                            <img src="{{ $student->mentor_signature_url }}" id="evalMentorSigImg" alt="Tanda Tangan Pembimbing Industri" class="mentor-sig-thumb" style="max-height:65px;max-width:170px;object-fit:contain;mix-blend-mode:multiply;display:block;margin:0 auto;">
+                        </div>
+                    @else
+                        <div style="height:60px;display:flex;align-items:center;justify-content:center;">
+                            <button type="button" onclick="triggerMentorSignatureUpload()" style="font-size:0.75rem;color:var(--primary);text-decoration:none;border:1px dashed #cbd5e1;padding:4px 8px;border-radius:6px;background:#f8fafc;cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Upload TTD Pembimbing
+                            </button>
+                        </div>
+                    @endif
+                </div>
                 <input type="text" name="mentor_name" class="form-control" style="text-align:center;font-weight:700;max-width:280px;margin:0 auto;" value="{{ old('mentor_name', $eval->mentor_name ?? $student->mentor_name ?? 'Sujatmo, S.Sos') }}" placeholder="Nama Pembimbing Industri">
             </div>
         </div>
@@ -4408,6 +4434,52 @@
         }
         if (idPlaceholder) idPlaceholder.style.display = 'none';
         if (idRemoveBtn) idRemoveBtn.style.display = 'inline-flex';
+
+        // Sinkronisasi ke tanda tangan pembimbing industri di Lembar 4 & 5
+        if (window.updateMentorSignatureUI) {
+            window.updateMentorSignatureUI(url);
+        }
+    };
+
+    window.updateMentorSignatureUI = function(url) {
+        if (!url) return;
+
+        // Update di Identitas
+        const idImg = document.getElementById('mentorSigImg');
+        const idPlaceholder = document.getElementById('mentorSigPlaceholder');
+        const idRemoveBtn = document.getElementById('btnRemoveMentorSig');
+        if (idImg) {
+            idImg.src = url;
+            idImg.style.display = 'block';
+        }
+        if (idPlaceholder) idPlaceholder.style.display = 'none';
+        if (idRemoveBtn) idRemoveBtn.style.display = 'inline-flex';
+
+        // Update di Lembar 4 (Rekapitulasi Kehadiran)
+        const recapBox = document.getElementById('attRecapMentorSigContainer');
+        if (recapBox) {
+            recapBox.innerHTML = `
+                <div style="position:relative;display:inline-block;" title="Tanda Tangan Pembimbing Industri">
+                    <img src="${url}" id="attRecapMentorSigImg" alt="Tanda Tangan Pembimbing Industri" class="mentor-sig-thumb" style="max-height:60px;max-width:160px;object-fit:contain;mix-blend-mode:multiply;display:block;margin:0 auto;">
+                </div>
+            `;
+        } else {
+            const recapImg = document.getElementById('attRecapMentorSigImg');
+            if (recapImg) recapImg.src = url;
+        }
+
+        // Update di Lembar 5 (Penilaian DU/DI)
+        const evalBox = document.getElementById('evalMentorSigContainer');
+        if (evalBox) {
+            evalBox.innerHTML = `
+                <div style="position:relative;display:inline-block;" title="Tanda Tangan Pembimbing Industri">
+                    <img src="${url}" id="evalMentorSigImg" alt="Tanda Tangan Pembimbing Industri" class="mentor-sig-thumb" style="max-height:65px;max-width:170px;object-fit:contain;mix-blend-mode:multiply;display:block;margin:0 auto;">
+                </div>
+            `;
+        } else {
+            const evalImg = document.getElementById('evalMentorSigImg');
+            if (evalImg) evalImg.src = url;
+        }
     };
 
     window.autoPropagateDefaultParaf = function(url) {
@@ -4485,6 +4557,56 @@
             document.body.appendChild(input);
         }
         input.click();
+    };
+
+    window.triggerMentorSignatureUpload = function() {
+        let input = document.getElementById('globalMentorSigFileInput');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file';
+            input.id = 'globalMentorSigFileInput';
+            input.accept = 'image/*';
+            input.style.display = 'none';
+            input.onchange = function() { window.handleDirectMentorSignatureUpload(this); };
+            document.body.appendChild(input);
+        }
+        input.click();
+    };
+
+    window.handleDirectMentorSignatureUpload = function(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        window.ParafOptimizer.optimizeImage(file, async function(base64) {
+            window.updateMentorSignatureUI(base64);
+
+            Toast.fire({
+                icon: 'info',
+                title: 'Menyimpan tanda tangan pembimbing industri...'
+            });
+
+            try {
+                const resp = await fetch("{{ route('students.mentor-signature', $student->id) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        mentor_signature_data: base64
+                    })
+                });
+                const res = await resp.json();
+                if (res.success) {
+                    Toast.fire({
+                        icon: 'success',
+                        title: '✓ Tanda tangan pembimbing industri berhasil disimpan & otomatis tampil di Lembar 4 & 5!'
+                    });
+                }
+            } catch (err) {
+                console.warn('Gagal async save mentor signature:', err);
+            }
+        });
     };
 
     window.handleMasterParafSelected = function(input) {

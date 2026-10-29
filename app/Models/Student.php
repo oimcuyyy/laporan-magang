@@ -70,27 +70,41 @@ class Student extends Model
 
     public function getMentorSignatureUrlAttribute(): ?string
     {
-        if (! $this->mentor_signature_path) {
+        $path = $this->mentor_signature_path;
+
+        // Fallback cerdas: jika tanda tangan mentor belum diupload tersendiri tapi master paraf sudah ada
+        if (! $path) {
+            $path = $this->default_paraf_path;
+        }
+
+        if (! $path) {
             return null;
         }
 
-        if (str_starts_with($this->mentor_signature_path, 'data:image/') || str_starts_with($this->mentor_signature_path, 'http')) {
-            return $this->mentor_signature_path;
+        if (str_starts_with($path, 'data:image/') || str_starts_with($path, 'http')) {
+            return $path;
         }
 
-        return asset('storage/'.$this->mentor_signature_path);
+        return asset('storage/'.$path);
     }
 
     public function getDefaultParafUrlAttribute(): ?string
     {
-        if (! $this->default_paraf_path) {
+        $path = $this->default_paraf_path;
+
+        // Fallback cerdas: jika master paraf belum diupload tapi tanda tangan mentor sudah ada
+        if (! $path) {
+            $path = $this->mentor_signature_path;
+        }
+
+        if (! $path) {
             return null;
         }
 
-        if (str_starts_with($this->default_paraf_path, 'data:image/') || str_starts_with($this->default_paraf_path, 'http')) {
-            return $this->default_paraf_path;
+        if (str_starts_with($path, 'data:image/') || str_starts_with($path, 'http')) {
+            return $path;
         }
 
-        return asset('storage/'.$this->default_paraf_path);
+        return asset('storage/'.$path);
     }
 }

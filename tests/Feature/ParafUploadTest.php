@@ -304,4 +304,52 @@ class ParafUploadTest extends TestCase
         $log2->refresh();
         $this->assertNotNull($log2->paraf_url);
     }
+
+    public function test_mentor_signature_is_rendered_in_attendance_recap_and_evaluation_views(): void
+    {
+        $student = $this->createSampleStudent();
+        $fakeBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+        $student->update([
+            'mentor_signature_path' => $fakeBase64,
+            'mentor_name' => 'Fauzi Bimo Nugroho',
+        ]);
+
+        // 1. Presensi tab (Lembar 4 Rekapitulasi)
+        $presensiRes = $this->get(route('students.show', ['student' => $student->id, 'tab' => 'presensi']));
+        $presensiRes->assertStatus(200);
+        $presensiRes->assertSee('attRecapMentorSigImg');
+        $presensiRes->assertSee('Fauzi Bimo Nugroho');
+
+        // 2. Penilaian tab (Lembar 5 DU/DI)
+        $penilaianRes = $this->get(route('students.show', ['student' => $student->id, 'tab' => 'penilaian']));
+        $penilaianRes->assertStatus(200);
+        $penilaianRes->assertSee('evalMentorSigImg');
+
+        // 3. Cetak PDF / Print 5 Lembar
+        $printRes = $this->get(route('students.print', $student->id));
+        $printRes->assertStatus(200);
+        $printRes->assertSee('print-mentor-signature-img');
+    }
+
+    public function test_mentor_signature_can_be_saved_via_dedicated_endpoint_and_fallbacks(): void
+    {
+        $student = $this->createSampleStudent();
+        $fakeBase64 = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+        $response = $this->postJson(route('students.mentor-signature', $student->id), [
+            'mentor_signature_data' => $fakeBase64,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'success' => true,
+        ]);
+
+        $student->refresh();
+        $this->assertNotNull($student->mentor_signature_path);
+        $this->assertNotNull($student->mentor_signature_url);
+        // Cek fallback cerdas: default_paraf_url juga otomatis menghasilkan mentor signature URL
+        $this->assertEquals($student->mentor_signature_url, $student->default_paraf_url);
+    }
 }

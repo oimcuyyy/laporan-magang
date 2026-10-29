@@ -35,6 +35,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
     // Tambah, Edit, Kloning, Hapus Siswa
     Route::post('students', [StudentController::class, 'store'])->name('students.store');
     Route::match(['put', 'patch', 'post'], 'students/{student}', [StudentController::class, 'update'])->name('students.update');
+    Route::post('students/{student}/mentor-signature', [StudentController::class, 'updateMentorSignature'])->name('students.mentor-signature');
     Route::post('students/{student}/master-paraf', [StudentController::class, 'updateMasterParaf'])->name('students.master-paraf');
     Route::patch('students/{student}/quick-cover', [StudentController::class, 'quickUpdateCover'])->name('students.quick-cover');
     Route::post('students/{student}/clone', [StudentController::class, 'cloneStudent'])->name('students.clone');
